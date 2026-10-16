@@ -1,6 +1,7 @@
 """Embed catalog images with a frozen backbone, in resumable chunks.
 
-Usage: python scripts/embed_catalog.py --backbone clip [--limit N] [--ids FILE]
+Usage: python scripts/embed_catalog.py --backbone clip [--limit N]
+       python scripts/embed_catalog.py --backbone finetuned --ckpt DIR --out-name NAME [--subset FILE]
 
 The image order is artifacts/catalog/embed_order.txt (one image_name per line,
 written on first run from the inventory: decodable images in csv row order).
@@ -47,18 +48,29 @@ def embed_order() -> list[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--backbone", required=True, choices=["clip", "dinov2", "siglip2"])
+    ap.add_argument("--backbone", required=True, choices=["clip", "dinov2", "siglip2", "finetuned"])
+    ap.add_argument("--ckpt", default=None, help="fine tuned checkpoint directory (with --backbone finetuned)")
+    ap.add_argument("--out-name", default=None, help="output folder under artifacts/emb (default: backbone)")
+    ap.add_argument("--subset", default=None, help="file of image names to embed instead of the full order")
     ap.add_argument("--limit", type=int, default=None, help="embed only the first N images (timing)")
     ap.add_argument("--batch", type=int, default=64)
     args = ap.parse_args()
 
     names = embed_order()
+    if args.subset:
+        wanted = set(Path(args.subset).read_text().split())
+        names = [n for n in names if n in wanted]
     if args.limit:
         names = names[: args.limit]
-    out = ROOT / "artifacts" / "emb" / args.backbone
+    out = ROOT / "artifacts" / "emb" / (args.out_name or args.backbone)
     out.mkdir(parents=True, exist_ok=True)
     store = ZipImages(RAW / "images.zip")
-    enc = load_encoder(args.backbone)
+    if args.backbone == "finetuned":
+        from scent_lens.finetune import load_finetuned
+
+        enc = load_finetuned(args.ckpt)
+    else:
+        enc = load_encoder(args.backbone)
     print(f"{args.backbone} on {enc.device}: {len(names)} images", flush=True)
 
     n_chunks = (len(names) + CHUNK - 1) // CHUNK
