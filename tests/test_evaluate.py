@@ -29,3 +29,19 @@ def test_photo_records_and_absent_bottles():
     s = summarize(r, n_boot=50)
     assert s["photos"] == 2 and s["bottles"] == 1
     assert s["top1"]["value"] == 0.5
+
+
+def test_select_pool_never_mixes_pools():
+    import pytest
+
+    from scent_lens.evaluate import select_pool
+
+    manifest = pd.DataFrame({"bottle_id": ["b1", "b2", "b3"], "pool": ["dev", "test", "dev"], "fold": [0, None, 1]})
+    photos = pd.DataFrame({"photo_id": ["x", "y", "z", "w"], "bottle_id": ["b1", "b2", "b3", "b1"]})
+    dev = select_pool(photos, manifest, "dev")
+    test = select_pool(photos, manifest, "test")
+    assert set(dev.bottle_id) == {"b1", "b3"} and set(test.bottle_id) == {"b2"}
+    assert not set(dev.photo_id) & set(test.photo_id)
+    assert dev.fold.notna().all()
+    with pytest.raises(ValueError):
+        select_pool(pd.DataFrame({"photo_id": ["q"], "bottle_id": ["b9"]}), manifest, "dev")

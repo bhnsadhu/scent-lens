@@ -57,3 +57,22 @@ def summarize(rec: pd.DataFrame, n_boot: int = 2000, seed: int = 0, matched_only
 def by_condition(rec: pd.DataFrame, n_boot: int = 2000, seed: int = 0) -> dict:
     r = rec[rec.status == "matched"]
     return {c: summarize(g, n_boot, seed) for c, g in r.groupby("condition")}
+
+
+def select_pool(photos: pd.DataFrame, manifest: pd.DataFrame, pool: str) -> pd.DataFrame:
+    """Photos of bottles in one pool ("dev" or "test"), with their fold.
+
+    Every bottle must be in the manifest; an unknown bottle raises rather than
+    silently landing in either pool.
+    """
+    if pool not in {"dev", "test"}:
+        raise ValueError(pool)
+    known = set(manifest.bottle_id)
+    unknown = sorted(set(photos.bottle_id) - known)
+    if unknown:
+        raise ValueError(f"photos of bottles missing from the split manifest: {unknown[:5]}")
+    m = manifest.set_index("bottle_id")
+    keep = photos.bottle_id.map(m["pool"]) == pool
+    out = photos[keep].copy()
+    out["fold"] = out.bottle_id.map(m["fold"])
+    return out
