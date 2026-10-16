@@ -85,3 +85,29 @@ def test_choose_threshold_is_conservative():
         assert error_upper_bound(k2, n2) > 0.1
     # impossible target means always abstain
     assert choose_threshold([0.5, 0.6], [0, 0], target_accuracy=0.9) == float("inf")
+
+
+def test_calibrator_refuses_test_bottles_and_roundtrips():
+    import pandas as pd
+
+    from scent_lens.calibration import (
+        calibrator_to_dict,
+        fit_dev_calibrator,
+        predict_from_dict,
+    )
+
+    X, y, _ = _toy(n=80)
+    rec = pd.DataFrame(X, columns=["top1_sim", "margin", "brand_agree5"])
+    rec["top1"] = y
+    rec["bottle_id"] = [f"b{i % 10}" for i in range(80)]
+    pools = {f"b{i}": "dev" for i in range(10)}
+    for kind in ("logistic", "isotonic"):
+        cal = fit_dev_calibrator(rec, pools, kind=kind)
+        d = calibrator_to_dict(cal)
+        assert np.allclose(predict_from_dict(d, X), cal.predict(X), atol=1e-9)
+    pools["b3"] = "test"
+    with pytest.raises(ValueError):
+        fit_dev_calibrator(rec, pools)
+    pools.pop("b3")
+    with pytest.raises(ValueError):  # a bottle missing from the manifest is refused too
+        fit_dev_calibrator(rec, pools)

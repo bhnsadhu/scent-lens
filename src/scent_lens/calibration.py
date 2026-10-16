@@ -105,3 +105,46 @@ def choose_threshold(
         if error_upper_bound(k, n, confidence) <= max_err:
             best = min(best, float(t))
     return best
+
+
+def assert_dev_only(bottle_ids: Sequence[str], manifest_pool: dict[str, str]) -> None:
+    """Raise if any bottle is not in the development pool."""
+    bad = sorted({b for b in bottle_ids if manifest_pool.get(b) != "dev"})
+    if bad:
+        raise ValueError(f"calibration data includes non development bottles: {bad[:5]}")
+
+
+def fit_dev_calibrator(
+    records, manifest_pool: dict[str, str], kind: str = "logistic", seed: int = 0
+) -> Calibrator:
+    """Fit on development photos only; refuses any test bottle."""
+    assert_dev_only(records["bottle_id"], manifest_pool)
+    X = records[list(FEATURES)].to_numpy(dtype=np.float64)
+    y = records["top1"].to_numpy(dtype=np.int64)
+    return fit_calibrator(X, y, kind, seed)
+
+
+def calibrator_to_dict(cal: Calibrator) -> dict:
+    lin = cal.model if cal.kind == "logistic" else cal.model[0]
+    d = {
+        "kind": cal.kind,
+        "features": list(FEATURES),
+        "feature_mean": cal.feature_mean.tolist(),
+        "feature_std": cal.feature_std.tolist(),
+        "coef": lin.coef_[0].tolist(),
+        "intercept": float(lin.intercept_[0]),
+    }
+    if cal.kind == "isotonic":
+        iso = cal.model[1]
+        d["isotonic_x"] = iso.X_thresholds_.tolist()
+        d["isotonic_y"] = iso.y_thresholds_.tolist()
+    return d
+
+
+def predict_from_dict(d: dict, X: np.ndarray) -> np.ndarray:
+    """Apply a saved calibrator without scikit learn (used by the demo)."""
+    Z = (np.asarray(X, dtype=np.float64) - np.asarray(d["feature_mean"])) / np.asarray(d["feature_std"])
+    z = Z @ np.asarray(d["coef"]) + d["intercept"]
+    if d["kind"] == "logistic":
+        return 1.0 / (1.0 + np.exp(-z))
+    return np.interp(z, d["isotonic_x"], d["isotonic_y"])
