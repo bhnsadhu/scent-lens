@@ -114,6 +114,8 @@ def main() -> int:
 
 
 def fmt(r) -> str:
+    if r.method == "random":  # exact expectation, too small for one decimal
+        return f"{100 * r.value:.3f}"
     return f"{100 * r.value:.1f} [{100 * r.lo:.1f}, {100 * r.hi:.1f}]"
 
 
@@ -184,7 +186,7 @@ def plot(res: pd.DataFrame, sw: pd.DataFrame, n_products: int) -> None:
         ax.set_ylim(0, 100)
     axes[0].set_ylabel("Accuracy, %")
     axes[1].legend(fontsize=8, loc="lower left")
-    fig.suptitle("Synthetic check (optimistic): accuracy falls as the gallery grows", x=0.01, ha="left", fontsize=12, fontweight="semibold")
+    fig.suptitle("Synthetic check (optimistic): accuracy falls as the gallery grows", x=0.01, ha="left", fontsize=12, fontweight="bold")
     fig.tight_layout()
     fig.savefig(ROOT / "results" / "synthetic_gallery_size.png", dpi=160)
     plt.close(fig)

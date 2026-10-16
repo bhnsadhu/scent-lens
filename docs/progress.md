@@ -8,7 +8,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] docs/PLAN.md written verbatim, MIT license, .gitignore (data/ and artifacts/ ignored); pushed
 - [x] Phase 0: preflight and setup (STOP A cleared 2026-10-15; venv, pins, layout, 36 unit tests, CI)
 - [x] Phase 1: data (download rev 9d2db452, inventory, cleaning to 25,748 images / 24,642 products, data_notes.md, spot check 50)
-- [ ] Phase 2: embeddings and synthetic baselines (IN PROGRESS: CLIP and SigLIP 2 galleries done; DINOv2 gallery, synthetic queries, synth_eval running, log logs/phase2.log)
+- [x] Phase 2: embeddings and synthetic baselines (results/synthetic_eval.md, charts in results/)
 - [ ] Phase 3: bottle coverage (STOP C, STOP C2)
 - [ ] Phase 4: preregistration and photo protocol (STOP D)
 - [ ] Phase 5: ingest and splits

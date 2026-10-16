@@ -41,7 +41,7 @@ def style() -> None:
             "axes.edgecolor": GRID,
             "axes.labelcolor": INK_2,
             "axes.titlecolor": INK,
-            "axes.titleweight": "semibold",
+            "axes.titleweight": "bold",
             "axes.titlesize": 12,
             "axes.titlelocation": "left",
             "axes.spines.top": False,
