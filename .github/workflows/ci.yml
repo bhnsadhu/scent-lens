@@ -18,7 +18,7 @@ jobs:
       - name: Install light dependencies (no torch, no gradio)
         run: pip install -r requirements-ci.txt
       - name: Lint
-        run: ruff check src tests scripts app
+        run: ruff check .
       - name: Unit tests on toy fixtures
         env:
           HF_HUB_OFFLINE: "1"
