@@ -24,9 +24,12 @@ None. STOP A cleared.
 
 ## Next action
 
-Phase 1. Download is resumable: rerun `.venv/bin/python scripts/download_data.py` (skips complete files). Then inspect perfumes.csv columns, write the column mapping, inventory script, cleaning.
+Phase 1 cleaning, then phase 2. Running in background (log logs/embed_all.log): full CLIP gallery embedding, then scripts/clean_catalog.py, then DINOv2 and SigLIP 2 gallery embeddings. All resumable: rerun the same commands, existing chunks are skipped.
+Done so far in phase 1: download (revision 9d2db452), column mapping, inventory (results/data_inventory.json).
+After: spot check 50 kept images, write docs/data_notes.md, synthetic eval (phase 2).
 
 Tools: ~/.local/bin/uv and ~/.local/bin/gh (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1 and NO_ALBUMENTATIONS_UPDATE=1.
+Disk: 8.7 GB free after model weights (2.3 GB in ~/.cache/huggingface/hub). Watch it.
 
 ## Seeds
 
