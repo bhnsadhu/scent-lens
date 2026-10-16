@@ -20,7 +20,8 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-None. STOP A cleared.
+STOP C (issued 2026-10-15 while phase 2 computes): user fills data/real/bottle_list.csv (brand,name,expected). Reply word: bottles.
+On reply: `.venv/bin/python scripts/match_bottles.py draft`, then STOP C2.
 
 ## Next action
 
