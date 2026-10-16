@@ -23,7 +23,7 @@ os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
 
 # attention projection module names and the block path per backbone
 LORA_TARGETS = {
-    "dinov2": (["query", "value"], "encoder.layer"),
+    "dinov2": (["q_proj", "v_proj"], "encoder.layer"),
     "siglip2": (["q_proj", "v_proj"], "encoder.layers"),
 }
 
