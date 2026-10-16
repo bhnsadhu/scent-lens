@@ -7,8 +7,8 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Repo check: origin bhnsadhu/scent-lens, public, default branch main, only README.md present
 - [x] docs/PLAN.md written verbatim, MIT license, .gitignore (data/ and artifacts/ ignored); pushed
 - [x] Phase 0: preflight and setup (STOP A cleared 2026-10-15; venv, pins, layout, 36 unit tests, CI)
-- [ ] Phase 1: data (IN PROGRESS: downloading via scripts/download_data.py, log logs/download.log)
-- [ ] Phase 2: embeddings and synthetic baselines
+- [x] Phase 1: data (download rev 9d2db452, inventory, cleaning to 25,748 images / 24,642 products, data_notes.md, spot check 50)
+- [ ] Phase 2: embeddings and synthetic baselines (IN PROGRESS: CLIP and SigLIP 2 galleries done; DINOv2 gallery, synthetic queries, synth_eval running, log logs/phase2.log)
 - [ ] Phase 3: bottle coverage (STOP C, STOP C2)
 - [ ] Phase 4: preregistration and photo protocol (STOP D)
 - [ ] Phase 5: ingest and splits
@@ -24,13 +24,14 @@ None. STOP A cleared.
 
 ## Next action
 
-Phase 1 cleaning, then phase 2. Running in background (log logs/embed_all.log): full CLIP gallery embedding, then scripts/clean_catalog.py, then DINOv2 and SigLIP 2 gallery embeddings. All resumable: rerun the same commands, existing chunks are skipped.
-Done so far in phase 1: download (revision 9d2db452), column mapping, inventory (results/data_inventory.json).
-After: spot check 50 kept images, write docs/data_notes.md, synthetic eval (phase 2).
+Phase 2 is running in the background: `scripts/embed_catalog.py --backbone dinov2`, then `scripts/synth_embed.py`, then `scripts/synth_eval.py` (log logs/phase2.log). All resumable: rerun the same commands; done chunks are skipped.
+After it: read results/synthetic_eval.md, commit results and charts, record headline decisions, then STOP C (bottle list).
+Already written for later phases: match_bottles.py (draft/apply), make_shot_list.py, ingest_photos.py, make_splits.py, embed_photos.py, eval_dev.py, finetune module, calibration, lock.
 
-Tools: ~/.local/bin/uv and ~/.local/bin/gh (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1 and NO_ALBUMENTATIONS_UPDATE=1.
-Disk: 8.7 GB free after model weights (2.3 GB in ~/.cache/huggingface/hub). Watch it.
+Tools: ~/.local/bin/uv and ~/.local/bin/gh (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1, NO_ALBUMENTATIONS_UPDATE=1, and HF_HUB_OFFLINE=1 (weights cached; without it the hub check can stall a run for minutes).
+Disk: about 8.5 GB free. Watch it.
 
 ## Seeds
 
-None used yet.
+- 20261015: synthetic query sample (results/synthetic_query_ids.csv), augmentation seeds (20261015 + 100 * query_index + condition index), bootstrap, gallery sweep draws (20261015 + size), split manifest.
+- 7: pandas random_state for the 50 image spot check.
