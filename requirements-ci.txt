@@ -1,0 +1,9 @@
+# Light CI subset: no torch, no gradio.
+numpy==2.4.6
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.17.1
+rapidfuzz==3.14.6
+pillow==12.3.0
+pytest==9.1.1
+ruff==0.17.1
