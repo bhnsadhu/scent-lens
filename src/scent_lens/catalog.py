@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import io
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -24,21 +25,38 @@ COLUMN_MAP = {
     "years": "year",
     "description": "description",
     "image_name": "image_name",
-    "image_id": "image_id",
 }
+# The card lists an image_id column, but perfumes.csv at the pinned revision
+# has none; image_id is derived from the file name stem instead.
 
 
 def load_catalog(csv_path: str | Path) -> pd.DataFrame:
-    """Read perfumes.csv, rename columns, and add row, product, and line keys."""
-    raw = pd.read_csv(csv_path, dtype=str, keep_default_na=False)
+    """Read perfumes.csv (pipe delimited), rename columns, add ids and keys."""
+    raw = pd.read_csv(csv_path, sep="|", dtype=str, keep_default_na=False)
     missing = [c for c in COLUMN_MAP if c not in raw.columns]
     if missing:
         raise KeyError(f"perfumes.csv lacks expected columns: {missing}; found {list(raw.columns)}")
     df = raw.rename(columns=COLUMN_MAP)[list(COLUMN_MAP.values())].copy()
+    df = df.apply(lambda col: col.str.strip())
     df.insert(0, "row_id", [f"r{i:05d}" for i in range(len(df))])
+    df["image_id"] = [n.rsplit(".", 1)[0] if n else "" for n in df["image_name"]]
+    df["notes"] = [parse_notes(v) for v in df["notes"]]
     df["product_key"] = [product_key(b, n) for b, n in zip(df["brand"], df["name"], strict=True)]
     df["line_key"] = [line_key(b, n) for b, n in zip(df["brand"], df["name"], strict=True)]
     return df
+
+
+def parse_notes(value: str) -> str:
+    """The ingredients column holds a Python style list; return "a, b, c"."""
+    if not value:
+        return ""
+    try:
+        items = ast.literal_eval(value)
+    except (ValueError, SyntaxError):
+        return value
+    if isinstance(items, (list, tuple)):
+        return ", ".join(str(i).strip() for i in items if str(i).strip())
+    return str(items)
 
 
 class ZipImages:

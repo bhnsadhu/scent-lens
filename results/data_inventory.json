@@ -1,0 +1,56 @@
+{
+  "rows": 26319,
+  "rows_without_image_name": 36,
+  "unique_brands": 1263,
+  "unique_products": 25101,
+  "unique_lines": 24335,
+  "images_referenced": 26283,
+  "images_ok": 26283,
+  "images_failed": 0,
+  "failure_examples": [],
+  "images_per_product": {
+    "1": 24111,
+    "2": 791,
+    "3": 125,
+    "4": 28,
+    "5": 14,
+    "6": 3,
+    "7": 1,
+    "8": 1
+  },
+  "width_px": {
+    "min": 500.0,
+    "p05": 500.0,
+    "median": 500.0,
+    "p95": 500.0,
+    "max": 500.0
+  },
+  "height_px": {
+    "min": 370.0,
+    "p05": 667.0,
+    "median": 667.0,
+    "p95": 667.0,
+    "max": 980.0
+  },
+  "file_bytes": {
+    "min": 4456.0,
+    "p05": 17822.0,
+    "median": 31101.0,
+    "p95": 54245.09999999998,
+    "max": 665076.0
+  },
+  "formats": {
+    "JPEG": 26214,
+    "PNG": 69
+  },
+  "byte_identical_groups": 73,
+  "byte_identical_images": 221,
+  "byte_identical_groups_shared_by_different_products": 53,
+  "byte_identical_images_shared_by_different_products": 181,
+  "near_duplicate_rule": "phash 64 bit, Hamming distance <= 4",
+  "near_duplicate_pairs": 29782,
+  "near_duplicate_pairs_identical_hash": 5328,
+  "near_duplicate_pairs_same_product": 93,
+  "near_duplicate_pairs_different_product": 29689,
+  "images_in_any_near_duplicate_pair": 8274
+}
