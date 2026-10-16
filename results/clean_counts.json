@@ -1,0 +1,25 @@
+{
+  "rows": 26319,
+  "rows_with_image": 26283,
+  "rows_with_decodable_image": 26283,
+  "dropped_metadata_explicit": 61,
+  "dropped_metadata_non_bottle": 40,
+  "dropped_image_flagged_explicit": 102,
+  "dropped_image_person": 3,
+  "dropped_image_not_bottle_photo": 66,
+  "not_bottle_top_prompt": {
+    "a photo of a cosmetic cream jar or lotion tube": 33,
+    "a blank white image": 21,
+    "a photo of a candle": 5,
+    "an illustration or drawing": 4,
+    "a logo or brand name text": 2,
+    "a product photo of a perfume bottle": 1
+  },
+  "dropped_generic_brand_image": 175,
+  "dropped_same_product_identical": 20,
+  "dropped_same_product_near_duplicate": 68,
+  "kept_images": 25748,
+  "kept_products": 24642,
+  "kept_brands": 1255,
+  "kept_products_with_multiple_images": 890
+}

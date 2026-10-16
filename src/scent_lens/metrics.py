@@ -38,19 +38,23 @@ def subsampled_ranks(
     Each gallery holds the true product plus gallery_size minus one distractors
     drawn without replacement, independently per query and per draw. Returns
     (n_draws, n_queries) ranks.
+
+    The rank inside such a gallery is the number of drawn distractors that
+    score at least as high as the truth. With b such products among the n - 1
+    distractors, that count is hypergeometric(b, n - 1 - b, gallery_size - 1),
+    so it is sampled directly; this is exactly the distribution of drawing the
+    gallery explicitly, without materializing it.
     """
     n_q, n_p = scores.shape
+    if (truth < 0).any():
+        raise ValueError("subsampled galleries need the truth in the gallery")
+    full = rank_of_truth(scores, truth)
     if gallery_size >= n_p:
-        return np.tile(rank_of_truth(scores, truth), (n_draws, 1))
+        return np.tile(full, (n_draws, 1))
     rng = np.random.default_rng(seed)
-    out = np.empty((n_draws, n_q), dtype=np.int64)
-    for d in range(n_draws):
-        for q in range(n_q):
-            t = truth[q]
-            pool = rng.choice(n_p - 1, size=gallery_size - 1, replace=False)
-            pool = pool + (pool >= t)  # skip the true column
-            out[d, q] = int((scores[q, pool] >= scores[q, t]).sum())
-    return out
+    good = full  # distractors scoring at least as high as the truth
+    bad = (n_p - 1) - full
+    return rng.hypergeometric(good, bad, gallery_size - 1, size=(n_draws, n_q)).astype(np.int64)
 
 
 def ece(probs: Sequence[float], correct: Sequence[float], n_bins: int = 10) -> float:

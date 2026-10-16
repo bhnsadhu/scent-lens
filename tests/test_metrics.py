@@ -75,3 +75,19 @@ def test_bootstrap_paired_statistic():
     )
     assert point == 0.5
     assert lo <= point <= hi
+
+
+def test_subsampled_matches_explicit_draws():
+    """Hypergeometric sampling agrees with drawing galleries explicitly."""
+    rng = np.random.default_rng(3)
+    scores = rng.random((400, 60))
+    truth = rng.integers(0, 60, size=400)
+    fast = subsampled_ranks(scores, truth, gallery_size=8, n_draws=20, seed=4)
+    slow = np.empty_like(fast)
+    for d in range(20):
+        for q in range(400):
+            pool = rng.choice(59, size=7, replace=False)
+            pool = pool + (pool >= truth[q])
+            slow[d, q] = int((scores[q, pool] >= scores[q, truth[q]]).sum())
+    for k in (1, 3):
+        assert abs((fast < k).mean() - (slow < k).mean()) < 0.03

@@ -35,9 +35,9 @@ RAW = ROOT / "data" / "raw"
 EMB = ROOT / "artifacts" / "emb" / "clip"
 OUT = ROOT / "artifacts" / "catalog"
 
-EXPLICIT_TERMS = r"\b(porn\w*|xxx|erotic\w*|fetish\w*|nsfw|orgasm\w*|bdsm|sex toys?)\b"
+EXPLICIT_TERMS = r"\b(?:porn\w*|xxx|erotic\w*|fetish\w*|nsfw|orgasm\w*|bdsm|sex toys?)\b"
 NON_BOTTLE_TERMS = (
-    r"\b(candles?|soaps?|shower gel|bath gel|body lotion|body cream|body butter|deodorant\w*|"
+    r"\b(?:candles?|soaps?|shower gel|bath gel|body lotion|body cream|body butter|deodorant\w*|"
     r"coffret|gift set|discovery set|sample set|diffuser|incense)\b"
 )
 
