@@ -42,3 +42,21 @@ def test_match_unknown_brand_returns_nearest(toy_catalog):
 def test_match_confidence_labels(toy_catalog):
     assert match_confidence(_match(toy_catalog, "Creed", "Aventus")) == "high"
     assert match_confidence([]) == "check"
+
+
+def test_brand_aliases_and_prefixed_names():
+    import pandas as pd
+
+    from scent_lens.matching import canonical_brand
+
+    assert canonical_brand("YSL") == "yves saint laurent"
+    assert canonical_brand("D&G") == "dolce and gabbana"
+    cat = pd.DataFrame(
+        {
+            "product_id": ["m1", "m2", "y1"],
+            "brand": ["Maison Margiela", "Maison Margiela", "Yves Saint Laurent"],
+            "name": ["Replica : Jazz Club", "Replica : Beach Walk", "Libre"],
+        }
+    )
+    assert _match(cat, "YSL", "Libre")[0].product_id == "y1"
+    assert _match(cat, "Maison Margiela", "Jazz Club")[0].product_id == "m1"

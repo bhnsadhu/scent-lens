@@ -29,6 +29,31 @@ def lenient_correct(
     return line_key(pred_brand, pred_name) == line_key(true_brand, true_name)
 
 
+# Common short forms people write for brands, mapped to catalog spellings.
+BRAND_ALIASES = {
+    "ysl": "yves saint laurent",
+    "saint laurent": "yves saint laurent",
+    "jpg": "jean paul gaultier",
+    "ck": "calvin klein",
+    "d and g": "dolce and gabbana",
+    "dg": "dolce and gabbana",
+    "d g": "dolce and gabbana",
+    "armani": "giorgio armani",
+    "mfk": "maison francis kurkdjian",
+    "pdm": "parfums de marly",
+    "ch": "carolina herrera",
+    "a and f": "abercrombie and fitch",
+    "af": "abercrombie and fitch",
+    "bvlgari": "bulgari",
+    "paco rabanne": "rabanne",
+}
+
+
+def canonical_brand(brand: str | None) -> str:
+    b = normalize_brand(brand)
+    return BRAND_ALIASES.get(b, b)
+
+
 @dataclass(frozen=True)
 class Candidate:
     product_id: str
@@ -54,7 +79,7 @@ def match_bottle(
     the brand folded into the string, so the reviewer still sees the nearest
     entries.
     """
-    q_brand = normalize_brand(brand)
+    q_brand = canonical_brand(brand)
     q_name = normalize_name(name, brand)
     norm_brands = [normalize_brand(b) for b in catalog_brands]
 
@@ -69,7 +94,9 @@ def match_bottle(
             if b not in good:
                 continue
             c_name = normalize_name(catalog_names[i], catalog_brands[i])
-            name_score = fuzz.token_sort_ratio(q_name, c_name)
+            # sort ratio rewards exact names; set ratio tolerates extra catalog
+            # words such as a collection prefix ("Replica : Jazz Club")
+            name_score = 0.5 * fuzz.token_sort_ratio(q_name, c_name) + 0.5 * fuzz.token_set_ratio(q_name, c_name)
             score = 0.25 * brand_scores[b] + 0.75 * name_score
             scored.append(Candidate(catalog_ids[i], catalog_brands[i], catalog_names[i], score))
     else:
