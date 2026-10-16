@@ -20,13 +20,13 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-STOP A, waiting for reply word: ready.
+STOP A, all items resolved; waiting for reply word: ready.
 
 Preflight findings (2026-10-15):
 - Free disk: was 456 MiB; user deleted old display logs, now 16 GiB free. Resolved.
 - Python: installed uv 0.8.22 and CPython 3.11.13 into ~/.local (uv managed). Resolved.
 - gh: installed gh 2.80.0 into ~/.local/bin; logged in as bhnsadhu, scopes repo and workflow; gh repo view says PUBLIC, main. Resolved.
-- Hugging Face: no token file yet. Still open; only the user can create a write token.
+- Hugging Face: token saved to ~/.cache/huggingface/token (outside repo); whoami says user bhnsadhu, role write. Resolved.
 - git push over https works (osxkeychain).
 - Hardware: Apple M3, 16 GB RAM, MPS expected.
 
