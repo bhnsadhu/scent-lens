@@ -6,8 +6,8 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 - [x] Repo check: origin bhnsadhu/scent-lens, public, default branch main, only README.md present
 - [x] docs/PLAN.md written verbatim, MIT license, .gitignore (data/ and artifacts/ ignored); pushed
-- [ ] Phase 0: preflight and setup (BLOCKED at STOP A)
-- [ ] Phase 1: data
+- [x] Phase 0: preflight and setup (STOP A cleared 2026-10-15; venv, pins, layout, 36 unit tests, CI)
+- [ ] Phase 1: data (IN PROGRESS: downloading via scripts/download_data.py, log logs/download.log)
 - [ ] Phase 2: embeddings and synthetic baselines
 - [ ] Phase 3: bottle coverage (STOP C, STOP C2)
 - [ ] Phase 4: preregistration and photo protocol (STOP D)
@@ -20,19 +20,13 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-STOP A, all items resolved; waiting for reply word: ready.
-
-Preflight findings (2026-10-15):
-- Free disk: was 456 MiB; user deleted old display logs, now 16 GiB free. Resolved.
-- Python: installed uv 0.8.22 and CPython 3.11.13 into ~/.local (uv managed). Resolved.
-- gh: installed gh 2.80.0 into ~/.local/bin; logged in as bhnsadhu, scopes repo and workflow; gh repo view says PUBLIC, main. Resolved.
-- Hugging Face: token saved to ~/.cache/huggingface/token (outside repo); whoami says user bhnsadhu, role write. Resolved.
-- git push over https works (osxkeychain).
-- Hardware: Apple M3, 16 GB RAM, MPS expected.
+None. STOP A cleared.
 
 ## Next action
 
-After "ready": recheck disk, python, gh auth, HF whoami with write role. Use ~/.local/bin/uv and ~/.local/bin/gh (not on PATH). Then create .venv, pinned requirements, layout, CI.
+Phase 1. Download is resumable: rerun `.venv/bin/python scripts/download_data.py` (skips complete files). Then inspect perfumes.csv columns, write the column mapping, inventory script, cleaning.
+
+Tools: ~/.local/bin/uv and ~/.local/bin/gh (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1 and NO_ALBUMENTATIONS_UPDATE=1.
 
 ## Seeds
 
