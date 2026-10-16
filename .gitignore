@@ -1,0 +1,26 @@
+# data and model artifacts never go to github
+data/
+artifacts/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.DS_Store
+*.log
+logs/
+.env
+*.heic
+*.HEIC
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.webp
+*.zip
+*.npy
+*.npz
+*.safetensors
+*.pt
+*.pth
