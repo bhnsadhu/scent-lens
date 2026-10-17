@@ -1,5 +1,11 @@
 """Ingest real photos: data/real/raw -> data/real/processed (metadata stripped, 1024 px).
 
+Two layouts are accepted, and can be mixed:
+* files named bottle_id__condition__n (anywhere under raw/), or
+* one folder per bottle (raw/b001/ ...) holding 6 or 12 photos shot in protocol
+  order (clean, angled, glare, dim, cluttered, partial, then optionally again);
+  conditions are assigned by capture time.
+
 Validates names against data/real/matches.csv, reports missing conditions per
 bottle, and writes data/real/photos.csv (one row per processed photo) and
 results/real_photo_counts.json (counts only). Resumable: processed files are
@@ -9,6 +15,7 @@ skipped.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -18,9 +25,49 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from scent_lens.photos import CONDITIONS, clean_image, parse_name, register_heif, save_clean  # noqa: E402
+from scent_lens.photos import (  # noqa: E402
+    CONDITIONS,
+    EXTENSIONS,
+    PhotoName,
+    capture_time,
+    clean_image,
+    conditions_for_folder,
+    parse_name,
+    register_heif,
+    save_clean,
+)
 
 REAL = ROOT / "data" / "real"
+
+
+def is_image(p: Path) -> bool:
+    return p.is_file() and not p.name.startswith(".") and p.suffix.lower() in EXTENSIONS
+
+
+def collect(raw: Path, bad: list[str]) -> list[tuple[Path, PhotoName]]:
+    out = []
+    for p in sorted(raw.rglob("*")):
+        if not is_image(p):
+            continue
+        folder = p.parent.name.lower()
+        if p.parent != raw and re.fullmatch(r"b\d{3}", folder) and parse_name(p) is None:
+            continue  # handled with its folder below
+        name = parse_name(p)
+        if name is None:
+            bad.append(f"{p.name}: name does not follow bottle_id__condition__n and it is not in a bottle folder")
+            continue
+        out.append((p, name))
+    for d in sorted(x for x in raw.iterdir() if x.is_dir() and re.fullmatch(r"b\d{3}", x.name.lower())):
+        files = [p for p in d.iterdir() if is_image(p) and parse_name(p) is None]
+        if not files:
+            continue
+        files.sort(key=lambda p: (capture_time(p), p.name))
+        plan = conditions_for_folder(len(files))
+        if plan is None:
+            bad.append(f"folder {d.name}: {len(files)} photos; expected 6 or 12 in protocol order, or name the files")
+            continue
+        out += [(p, PhotoName(d.name.lower(), c, n)) for p, (c, n) in zip(files, plan, strict=True)]
+    return out
 
 
 def main() -> int:
@@ -31,11 +78,7 @@ def main() -> int:
     known = matches.set_index("bottle_id")
     rows, bad, failed = [], [], []
     seen: Counter = Counter()
-    for src in sorted(p for p in raw.rglob("*") if p.is_file() and not p.name.startswith(".")):
-        name = parse_name(src)
-        if name is None:
-            bad.append(f"{src.name}: name does not follow bottle_id__condition__n")
-            continue
+    for src, name in collect(raw, bad):
         if name.bottle_id not in known.index:
             bad.append(f"{src.name}: bottle {name.bottle_id} is not in matches.csv")
             continue

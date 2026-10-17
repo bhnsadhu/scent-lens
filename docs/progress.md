@@ -10,7 +10,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 1: data (download rev 9d2db452, inventory, cleaning to 25,748 images / 24,642 products, data_notes.md, spot check 50)
 - [x] Phase 2: embeddings and synthetic baselines (results/synthetic_eval.md, charts in results/)
 - [x] Phase 3: bottle coverage (43 bottles: 34 matched, 9 absent; results/bottle_manifest.csv)
-- [ ] Phase 4: preregistration and photo protocol (IN PROGRESS)
+- [x] Phase 4: preregistration (frozen by test), photo protocol, shot list, labels template
 - [ ] Phase 5: ingest and splits
 - [ ] Phase 6: fine tune
 - [ ] Phase 7: confidence and abstention
@@ -20,7 +20,8 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-None. STOP C2 cleared.
+STOP D: user takes photos into data/real/raw (one folder per bottle, 6 or 12 photos in protocol order, or exact file names). Reply word: photos.
+On reply: `.venv/bin/python scripts/ingest_photos.py`, view a contact sheet per bottle locally to catch ordering mistakes, gate at 30 matched bottles with photos (else STOP D again), then `scripts/make_splits.py`, commit the manifest, then `scripts/embed_photos.py` and `scripts/eval_dev.py`.
 
 ## Next action
 

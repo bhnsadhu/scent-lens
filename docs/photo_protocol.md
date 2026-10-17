@@ -26,19 +26,19 @@ The bottles you listed as not in the catalog get the same six conditions. They t
 * Any phone camera, default settings. HEIC (iPhone default) and JPEG both work.
 * Friends' bottles: ask them first. Only photos you approve at the end will ever leave your computer.
 
-## File names
+## Where to put them (easiest way)
 
-Name each file bottle_id__condition__n with the extension your phone uses, for example:
+Make one folder per bottle inside data/real/raw/, named with the bottle id from data/real/shot_list.md: data/real/raw/b001/, data/real/raw/b002/, and so on.
 
-* b001__clean__1.heic
-* b001__glare__2.jpg
-* b014__partial__1.heic
+For each bottle, take the six photos in this fixed order: clean, angled, glare, dim, cluttered, partial. Then copy exactly those six photos into the bottle's folder; the file names do not matter. ScentLens sorts them by the time they were taken and assigns the conditions in that order. If you take a second round, take all six again in the same order and put all twelve in the folder.
 
-bottle_id comes from data/real/shot_list.md, condition is one of clean, angled, glare, dim, cluttered, partial, and n is 1 or 2. Two underscores separate the parts.
+If a folder has a number of photos other than 6 or 12, ScentLens reports it and skips that folder, so retake or remove the extra shots.
 
-## Where to put them
+## Alternative: name each file
 
-Copy all photos into data/real/raw/. Then open data/real/labels.csv: it already lists every expected photo. For each photo you took, set taken to yes. Leave rows for skipped photos as no. Use the notes column for anything unusual (for example "label peeling" or "travel size").
+Instead of folders, you can name each file bottle_id__condition__n with the extension your phone uses (for example b001__clean__1.heic or b014__partial__2.jpg) and put the files anywhere in data/real/raw/. bottle_id comes from data/real/shot_list.md, condition is one of clean, angled, glare, dim, cluttered, partial, and n is 1 or 2. Two underscores separate the parts. Both ways can be mixed.
+
+data/real/labels.csv lists every expected photo. Filling it is optional: use the notes column for anything unusual (for example "label peeling" or "travel size").
 
 ## What happens next
 

@@ -60,3 +60,32 @@ def clean_image(src: str | Path, max_side: int = MAX_SIDE) -> Image.Image:
 
 def save_clean(img: Image.Image, dst: str | Path) -> None:
     img.save(dst, format="JPEG", quality=92, exif=b"", optimize=True)
+
+
+def conditions_for_folder(n_files: int) -> list[tuple[str, int]] | None:
+    """Condition and shot number for a bottle folder shot in protocol order.
+
+    Six photos are one round (clean, angled, glare, dim, cluttered, partial);
+    twelve are two rounds. Any other count is ambiguous and returns None.
+    """
+    if n_files not in (len(CONDITIONS), 2 * len(CONDITIONS)):
+        return None
+    return [(CONDITIONS[i % len(CONDITIONS)], i // len(CONDITIONS) + 1) for i in range(n_files)]
+
+
+def capture_time(path: str | Path) -> str:
+    """EXIF DateTimeOriginal (or DateTime), else the file modification time.
+
+    Read before metadata is stripped; used only to order a bottle's photos.
+    """
+    try:
+        with Image.open(path) as img:
+            exif = img.getexif()
+            stamp = exif.get_ifd(0x8769).get(0x9003) or exif.get(0x0132)
+            if stamp:
+                return str(stamp)
+    except Exception:
+        pass
+    from datetime import datetime
+
+    return datetime.fromtimestamp(Path(path).stat().st_mtime).strftime("%Y:%m:%d %H:%M:%S.%f")

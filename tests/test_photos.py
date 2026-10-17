@@ -31,3 +31,15 @@ def test_exif_and_gps_are_stripped(tmp_path):
     assert not reread.getexif()
     assert "exif" not in reread.info
     assert "icc_profile" not in reread.info
+
+
+def test_conditions_for_folder():
+    from scent_lens.photos import conditions_for_folder
+
+    six = conditions_for_folder(6)
+    assert [c for c, _ in six] == ["clean", "angled", "glare", "dim", "cluttered", "partial"]
+    assert {n for _, n in six} == {1}
+    twelve = conditions_for_folder(12)
+    assert twelve[6] == ("clean", 2) and twelve[11] == ("partial", 2)
+    assert conditions_for_folder(7) is None
+    assert conditions_for_folder(0) is None
