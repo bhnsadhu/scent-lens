@@ -9,8 +9,8 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 0: preflight and setup (STOP A cleared 2026-10-15; venv, pins, layout, 36 unit tests, CI)
 - [x] Phase 1: data (download rev 9d2db452, inventory, cleaning to 25,748 images / 24,642 products, data_notes.md, spot check 50)
 - [x] Phase 2: embeddings and synthetic baselines (results/synthetic_eval.md, charts in results/)
-- [ ] Phase 3: bottle coverage (STOP C done: 43 bottles; at STOP C2)
-- [ ] Phase 4: preregistration and photo protocol (STOP D)
+- [x] Phase 3: bottle coverage (43 bottles: 34 matched, 9 absent; results/bottle_manifest.csv)
+- [ ] Phase 4: preregistration and photo protocol (IN PROGRESS)
 - [ ] Phase 5: ingest and splits
 - [ ] Phase 6: fine tune
 - [ ] Phase 7: confidence and abstention
@@ -20,8 +20,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-STOP C2: user reviews data/real/match_review.csv (decisions prefilled with suggestions; b042 needs pick1 or pick2; b016 ambiguous unless user confirms). Reply word: matches.
-On reply: `.venv/bin/python scripts/match_bottles.py apply`, report counts (gate: at least 30 matched), then phase 4 (preregistration, photo protocol, shot list), then STOP D.
+None. STOP C2 cleared.
 
 ## Next action
 
