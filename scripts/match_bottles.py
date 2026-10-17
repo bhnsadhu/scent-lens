@@ -7,7 +7,7 @@ draft: reads data/real/bottle_list.csv (brand, name, expected) and writes
 apply: reads the edited match_review.csv and rebuilds data/real/matches.csv.
 
 Review columns the user edits:
-  decision: ok (the suggested match is right), pick2 or pick3 (an alternative
+  decision: ok or pick1 (the first candidate is right), pick2 or pick3 (an alternative
     candidate is right), absent (not in the catalog), ambiguous (cannot tell).
   product_id_override: optional catalog product id, found in
     data/real/catalog_names.csv, when none of the candidates is right.
@@ -29,7 +29,7 @@ from scent_lens.matching import match_bottle, match_confidence  # noqa: E402
 
 REAL = ROOT / "data" / "real"
 GALLERY = ROOT / "artifacts" / "catalog" / "gallery.csv"
-DECISIONS = {"ok", "pick2", "pick3", "absent", "ambiguous"}
+DECISIONS = {"ok", "pick1", "pick2", "pick3", "absent", "ambiguous"}
 
 
 def products() -> pd.DataFrame:
@@ -109,7 +109,7 @@ def apply() -> int:
                 problems.append(f"{r.bottle_id}: unknown product id {override}")
                 continue
             pid, status = override, "matched"
-        elif d == "ok":
+        elif d in {"ok", "pick1"}:
             pid, status = r.cand1_product_id, "matched"
         elif d in {"pick2", "pick3"}:
             pid, status = getattr(r, f"cand{d[-1]}_product_id"), "matched"

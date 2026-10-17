@@ -105,6 +105,8 @@ def main() -> int:
     text = (df["brand"] + " " + df["name"] + " " + df["description"]).str.lower()
     explicit_meta = text.str.contains(EXPLICIT_TERMS, regex=True)
     non_bottle_meta = (df["name"].str.lower()).str.contains(NON_BOTTLE_TERMS, regex=True)
+    dropped = [df[explicit_meta].assign(reason="metadata_explicit"),
+               df[non_bottle_meta & ~explicit_meta].assign(reason="metadata_non_bottle")]
     counts["dropped_metadata_explicit"] = int(explicit_meta.sum())
     counts["dropped_metadata_non_bottle"] = int((non_bottle_meta & ~explicit_meta).sum())
     df = df[~explicit_meta & ~non_bottle_meta].copy()
@@ -116,6 +118,9 @@ def main() -> int:
     flagged_explicit = df["p_explicit"] > EXPLICIT_MAX
     flagged_person = (df["p_person"] > PERSON_MAX) & ~flagged_explicit
     not_bottle = (df["p_keep"] < KEEP_MIN) & ~flagged_explicit & ~flagged_person
+    dropped += [df[flagged_explicit].assign(reason="image_flagged_explicit"),
+                df[flagged_person].assign(reason="image_person"),
+                df[not_bottle].assign(reason="image_not_bottle_photo")]
     counts["dropped_image_flagged_explicit"] = int(flagged_explicit.sum())
     counts["dropped_image_person"] = int(flagged_person.sum())
     counts["dropped_image_not_bottle_photo"] = int(not_bottle.sum())
@@ -125,10 +130,13 @@ def main() -> int:
     # 3. duplicates
     shared = df.groupby("md5")["product_key"].nunique()
     generic = df["md5"].isin(shared[shared > 1].index)
+    dropped.append(df[generic].assign(reason="generic_brand_image"))
     counts["dropped_generic_brand_image"] = int(generic.sum())
     df = df[~generic]
     before = len(df)
-    df = df.drop_duplicates(["product_key", "md5"])
+    dup = df.duplicated(["product_key", "md5"])
+    dropped.append(df[dup].assign(reason="same_product_identical"))
+    df = df[~dup]
     counts["dropped_same_product_identical"] = before - len(df)
     keep = []
     for _, grp in df.groupby("product_key", sort=False):
@@ -139,6 +147,7 @@ def main() -> int:
                 bits.append(v)
                 keep.append(idx)
     counts["dropped_same_product_near_duplicate"] = len(df) - len(keep)
+    dropped.append(df.drop(index=keep).assign(reason="same_product_near_duplicate"))
     df = df.loc[sorted(keep)].copy()
 
     # 4. product ids
@@ -158,6 +167,8 @@ def main() -> int:
     ]
     OUT.mkdir(parents=True, exist_ok=True)
     df[cols].to_csv(OUT / "gallery.csv", index=False)
+    # names and reasons only, never images; used to explain missing products
+    pd.concat(dropped)[["row_id", "brand", "name", "product_key", "reason"]].to_csv(OUT / "dropped.csv", index=False)
     df[["image_id", "product_id", "row_id"]].to_csv(ROOT / "results" / "gallery_manifest.csv", index=False)
     (ROOT / "results" / "clean_counts.json").write_text(json.dumps(counts, indent=2) + "\n")
     print(json.dumps(counts, indent=2))
