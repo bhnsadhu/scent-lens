@@ -98,3 +98,7 @@ Reported as a point estimate and interval only; with 4 or 5 absent test bottles 
 ## Expected test size and interval width
 
 With 34 matched and 9 absent bottles split in half, the test split should hold about 17 matched and 4 or 5 absent bottles, each with 6 to 12 photos, so roughly 120 to 250 test photos. Because intervals resample bottles, the effective sample size is about 17 for matched bottle metrics. For a proportion near 50%, a 95% interval then spans roughly plus or minus 20 to 25 points; near 80%, about plus or minus 15 to 20. Differences between methods smaller than about 15 to 20 points will usually be inconclusive, and per condition results, with a few dozen photos from the same bottles, are descriptive rather than conclusive.
+
+## Correction notes
+
+2026-10-16. Before any photo was taken, the user added three bottles they had forgotten. The bottle list is now 46 bottles: 35 matched to a catalog product (adding Le Monde Gourmand Bellini Frais) and 11 not in the cleaned catalog (adding Being Frenshe Moon Milk and Tory Burch Sublime, whose catalog only lists the separate Sublime Rose flanker). Everything above applies unchanged with these counts; the expected test split becomes about 17 or 18 matched and 5 or 6 absent bottles, which slightly narrows the intervals and makes H7 a little less fragile. Nothing else changes.

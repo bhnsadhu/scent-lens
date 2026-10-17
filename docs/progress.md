@@ -9,7 +9,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 0: preflight and setup (STOP A cleared 2026-10-15; venv, pins, layout, 36 unit tests, CI)
 - [x] Phase 1: data (download rev 9d2db452, inventory, cleaning to 25,748 images / 24,642 products, data_notes.md, spot check 50)
 - [x] Phase 2: embeddings and synthetic baselines (results/synthetic_eval.md, charts in results/)
-- [x] Phase 3: bottle coverage (43 bottles: 34 matched, 9 absent; results/bottle_manifest.csv)
+- [x] Phase 3: bottle coverage (46 bottles: 35 matched, 11 absent; results/bottle_manifest.csv)
 - [x] Phase 4: preregistration (frozen by test), photo protocol, shot list, labels template
 - [ ] Phase 5: ingest and splits
 - [ ] Phase 6: fine tune
