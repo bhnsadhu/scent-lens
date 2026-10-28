@@ -1,0 +1,18 @@
+{
+  "photos": 80,
+  "bottles_with_photos": 45,
+  "matched_bottles_with_photos": 37,
+  "absent_bottles_with_photos": 8,
+  "photos_by_condition": {
+    "online": 44,
+    "clean": 18,
+    "cluttered": 18
+  },
+  "photos_per_bottle": {
+    "min": 1,
+    "max": 3
+  },
+  "bottles_missing_some_condition": 57,
+  "rejected_files": 0,
+  "unreadable_files": 0
+}

@@ -9,9 +9,9 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 0: preflight and setup (STOP A cleared 2026-10-15; venv, pins, layout, 36 unit tests, CI)
 - [x] Phase 1: data (download rev 9d2db452, inventory, cleaning to 25,748 images / 24,642 products, data_notes.md, spot check 50)
 - [x] Phase 2: embeddings and synthetic baselines (results/synthetic_eval.md, charts in results/)
-- [x] Phase 3: bottle coverage (56 bottles: 45 matched, 11 absent; results/bottle_manifest.csv)
+- [x] Phase 3: bottle coverage (57 bottles: 46 matched, 11 absent; results/bottle_manifest.csv)
 - [x] Phase 4: preregistration (frozen by test), photo protocol, shot list, labels template
-- [ ] Phase 5: ingest and splits
+- [x] Phase 5: ingest and splits (80 images of 45 bottles: 36 phone photos, clean and cluttered, plus 44 online product images; split 22 dev / 23 test bottles, results/split_manifest.csv; deviation noted in the preregistration 2026-10-28)
 - [ ] Phase 6: fine tune
 - [ ] Phase 7: confidence and abstention
 - [ ] Phase 8: final evaluation, once
@@ -20,8 +20,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-STOP D: user takes photos into data/real/raw (one folder per bottle, 6 or 12 photos in protocol order, or exact file names). Reply word: photos.
-On reply: `.venv/bin/python scripts/ingest_photos.py`, view a contact sheet per bottle locally to catch ordering mistakes, gate at 30 matched bottles with photos (else STOP D again), then `scripts/make_splits.py`, commit the manifest, then `scripts/embed_photos.py` and `scripts/eval_dev.py`.
+None. Next: `scripts/embed_photos.py`, then `scripts/eval_dev.py` on the development pool (rules 1 and 2).
 
 ## Next action
 

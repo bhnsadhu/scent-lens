@@ -12,6 +12,17 @@ def test_parse_name():
     assert parse_name("b001__clean__1.txt") is None
 
 
+def test_transparent_background_becomes_white(tmp_path):
+    src = tmp_path / "shot.png"
+    img = Image.new("RGBA", (40, 40), (0, 0, 0, 0))
+    img.paste((10, 20, 30, 255), (10, 10, 30, 30))
+    img.save(src)
+    out = clean_image(src)
+    assert out.mode == "RGB"
+    assert out.getpixel((0, 0)) == (255, 255, 255)
+    assert out.getpixel((20, 20)) == (10, 20, 30)
+
+
 def test_exif_and_gps_are_stripped(tmp_path):
     src = tmp_path / "in.jpg"
     img = Image.new("RGB", (3000, 2000), (200, 100, 50))

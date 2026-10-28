@@ -9,6 +9,7 @@ from pathlib import Path
 from PIL import Image, ImageOps
 
 CONDITIONS = ("clean", "angled", "glare", "dim", "cluttered", "partial")
+ONLINE = "online"  # one audited online product image per bottle; not a phone condition
 EXTENSIONS = {".heic", ".heif", ".jpg", ".jpeg", ".png"}
 NAME_RE = re.compile(r"^(?P<bottle>b\d{3})__(?P<cond>[a-z]+)__(?P<n>\d+)$")
 MAX_SIDE = 1024
@@ -52,6 +53,10 @@ def clean_image(src: str | Path, max_side: int = MAX_SIDE) -> Image.Image:
     """
     with Image.open(src) as img:
         img = ImageOps.exif_transpose(img)
+        if img.mode in ("RGBA", "LA", "P"):  # transparent product shots go on white, not black
+            rgba = img.convert("RGBA")
+            img = Image.new("RGBA", rgba.size, "white")
+            img.alpha_composite(rgba)
         img = img.convert("RGB")
         img.thumbnail((max_side, max_side), Image.LANCZOS)
         clean = Image.frombytes("RGB", img.size, img.tobytes())

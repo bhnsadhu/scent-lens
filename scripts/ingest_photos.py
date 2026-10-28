@@ -6,6 +6,11 @@ Two layouts are accepted, and can be mixed:
   order (clean, angled, glare, dim, cluttered, partial, then optionally again);
   conditions are assigned by capture time.
 
+Online product images (data/real/online_refs/scentlens_audited, one per bottle)
+are added under the condition "online", read from that pack's manifest with
+their hashes checked; they never pass through raw/ (see the preregistration
+note of 2026-10-28).
+
 Validates names against data/real/matches.csv, reports missing conditions per
 bottle, and writes data/real/photos.csv (one row per processed photo) and
 results/real_photo_counts.json (counts only). Resumable: processed files are
@@ -14,6 +19,7 @@ skipped.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sys
@@ -28,6 +34,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from scent_lens.photos import (  # noqa: E402
     CONDITIONS,
     EXTENSIONS,
+    ONLINE,
     PhotoName,
     capture_time,
     clean_image,
@@ -38,6 +45,7 @@ from scent_lens.photos import (  # noqa: E402
 )
 
 REAL = ROOT / "data" / "real"
+ONLINE_PACK = REAL / "online_refs" / "scentlens_audited"
 
 
 def is_image(p: Path) -> bool:
@@ -70,6 +78,21 @@ def collect(raw: Path, bad: list[str]) -> list[tuple[Path, PhotoName]]:
     return out
 
 
+def collect_online(pack: Path, bad: list[str]) -> list[tuple[Path, PhotoName]]:
+    """The retained images of the online pack, in manifest order; removed entries are skipped."""
+    if not (pack / "photo_manifest.json").exists():
+        return []
+    out = []
+    for b in json.loads((pack / "photo_manifest.json").read_text())["bottles"]:
+        for n, ph in enumerate(b["photos"], start=1):
+            p = pack / ph["file"]
+            if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest() != ph["sha256"]:
+                bad.append(f"online {ph['file']}: missing or hash differs from the manifest")
+                continue
+            out.append((p, PhotoName(b["id"], ONLINE, n)))
+    return out
+
+
 def main() -> int:
     register_heif()
     raw, out = REAL / "raw", REAL / "processed"
@@ -78,7 +101,7 @@ def main() -> int:
     known = matches.set_index("bottle_id")
     rows, bad, failed = [], [], []
     seen: Counter = Counter()
-    for src, name in collect(raw, bad):
+    for src, name in collect(raw, bad) + collect_online(ONLINE_PACK, bad):
         if name.bottle_id not in known.index:
             bad.append(f"{src.name}: bottle {name.bottle_id} is not in matches.csv")
             continue

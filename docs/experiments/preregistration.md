@@ -114,3 +114,16 @@ With 34 matched and 9 absent bottles split in half, the test split should hold a
 2026-10-28. One bottle corrected before any photo was taken: the Bath & Body Works bottle first listed as Coffee and Vanilla (not in the catalog) is Coffee & Whiskey, which is in the catalog. The bottle list is now 57 bottles: 46 matched and 11 not in the cleaned catalog. Nothing else changes.
 
 2026-10-28. One duplicate removed before any photo was taken: Giorgio Armani Acqua di Gio was listed twice, once as a full size bottle and once as the miniature from the sampler set, and only the miniature exists. Its earlier ID is left unused. The bottle list is now 56 bottles: 45 matched and 11 not in the cleaned catalog. Nothing else changes.
+
+2026-10-28. One bottle added after the first phone photos were taken but before any evaluation: Les Eaux Primordiales Vanille Supermassive, which is in the catalog, appeared in the photos and was missing from the list. The bottle list is now 57 bottles: 46 matched and 11 not in the cleaned catalog. No split has been made and no model has seen a phone photo. Nothing else changes.
+
+2026-10-28. Deviation from the photo plan, decided before any split was drawn and before any model saw a real image. The user photographed 18 bottles with a phone, two photos each (a plain carpet background, filed as clean, and a hoodie background with other clothing, filed as cluttered), and chose not to shoot the six condition protocol. That leaves 15 matched bottles with phone photos, below the gate of 30. To pass the gate, the evaluation set also includes one online product image per bottle for the 44 bottles that have one (an audited pack of retailer and brand images, kept in data/real/online_refs with source URLs and hashes), filed under a new condition named online. The changes, applied everywhere above:
+
+* Real photos now means phone photos plus online images. Every metric is reported overall and separately for phone photos and online images, and the claim about ordinary phone photos rests on the phone subset only.
+* The gate counts matched bottles with at least one image of either kind. Phone and online images of one bottle always fall in the same pool and fold, because the split stays at the bottle level.
+* H2 is judged on phone photos only; the online result is reported next to it as descriptive.
+* H3 cannot be tested: phone photos cover only clean and cluttered. It is reported as not tested, and clean minus cluttered top 1 on phone photos is reported as a descriptive number.
+* H5's clean photo check uses phone clean photos.
+* Rules 1 to 6 and H1, H4, H6 and H7 use all images as written, with the per source breakdown added.
+* Online images are studio style product shots, closer to catalog images than phone photos are, so they are expected to be easier. Before this note, each online image was compared with its own product's catalog images by perceptual hash: none is a near copy (smallest Hamming distance 12, against the duplicate threshold of 4). Their reuse permission is unknown, so none appears in the demo.
+* Expected size changes: about 45 bottles with images (37 matched, 8 absent), so roughly 18 matched test bottles, with one to three images each. Intervals stay as wide as estimated above or wider.
