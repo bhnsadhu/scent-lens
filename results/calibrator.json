@@ -1,0 +1,56 @@
+{
+  "method": "finetuned",
+  "seed": 20261015,
+  "dev_photos": 44,
+  "dev_correct": 23,
+  "oof_brier": {
+    "logistic": 0.12877319515039196,
+    "isotonic": 0.11255272348336463
+  },
+  "kind": "isotonic",
+  "target_selective_accuracy": 0.9,
+  "threshold": null,
+  "always_abstain": true,
+  "oof_selective_accuracy": null,
+  "oof_coverage": 0.0,
+  "calibrator": {
+    "kind": "isotonic",
+    "features": [
+      "top1_sim",
+      "margin",
+      "brand_agree5"
+    ],
+    "feature_mean": [
+      0.6933628131042827,
+      0.0690182508392767,
+      0.5499999999999999
+    ],
+    "feature_std": [
+      0.13652766504508035,
+      0.08519142336596462,
+      0.33878123807661964
+    ],
+    "coef": [
+      1.2105375609190072,
+      1.4469222009106792,
+      0.2512660788621192
+    ],
+    "intercept": 0.6806001444204838,
+    "isotonic_x": [
+      -2.038207911425182,
+      -1.6642311412611597,
+      -1.6536178327339832,
+      0.2495994618120161,
+      0.36340755092655486,
+      6.915007656407163
+    ],
+    "isotonic_y": [
+      0.0,
+      0.0,
+      0.2,
+      0.2,
+      1.0,
+      1.0
+    ]
+  }
+}

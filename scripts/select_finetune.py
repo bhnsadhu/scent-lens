@@ -89,7 +89,7 @@ def main() -> int:
     from scent_lens.finetune import load_finetuned
 
     for ck in args.ckpts:
-        ck = Path(ck)
+        ck = Path(ck).resolve()
         out_name = f"ft_{ck.parent.name}_{ck.name}_proxy"
         emb_dir = ROOT / "artifacts" / "emb" / out_name
         if not (emb_dir / "gallery.npy").exists():

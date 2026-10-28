@@ -12,15 +12,15 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 3: bottle coverage (57 bottles: 46 matched, 11 absent; results/bottle_manifest.csv)
 - [x] Phase 4: preregistration (frozen by test), photo protocol, shot list, labels template
 - [x] Phase 5: ingest and splits (80 images of 45 bottles: 36 phone photos, clean and cluttered, plus 44 online product images; split 22 dev / 23 test bottles, results/split_manifest.csv; deviation noted in the preregistration 2026-10-28)
-- [ ] Phase 6: fine tune
-- [ ] Phase 7: confidence and abstention
+- [x] Phase 6: fine tune (grid of 4 runs, results/runs.jsonl; rule 4 picks lr 1e-4 strength 1.0 epoch 2: dev proxy top 1 75.0 vs frozen 55.6)
+- [x] Phase 7: confidence and abstention (isotonic calibrator; no threshold qualifies, so the system always abstains by rule 6; results/calibrator.json)
 - [ ] Phase 8: final evaluation, once
 - [ ] Phase 9: demo (STOP E, STOP F)
 - [ ] Phase 10: readme and finish
 
 ## Current stop
 
-None. Next: `scripts/embed_photos.py`, then `scripts/eval_dev.py` on the development pool (rules 1 and 2).
+Before phase 8: the one time test evaluation (phase 8) waits for the user's go ahead. All development pool decisions (rules 1 to 6) are recorded in docs/decisions.md.
 
 ## Next action
 
