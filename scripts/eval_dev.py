@@ -58,7 +58,8 @@ def main() -> int:
     def f(d):
         return f"{100 * d['value']:.1f} [{100 * d['lo']:.1f}, {100 * d['hi']:.1f}]"
 
-    conds = ["clean", "angled", "glare", "dim", "cluttered", "partial"]
+    conds = ["clean", "angled", "glare", "dim", "cluttered", "partial", "online"]
+    conds = [c for c in conds if any(c in r["by_condition"] for r in results["methods"].values())]
     lines = [
         f"# Development pool results ({args.tag})", "",
         f"Development pool only: {results['photos']} photos of {results['bottles']} bottles. Matched bottles only; "
