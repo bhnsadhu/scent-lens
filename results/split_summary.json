@@ -1,16 +1,16 @@
 {
   "seed": 20261015,
-  "dev_bottles": 22,
-  "test_bottles": 23,
-  "dev_matched": 18,
-  "test_matched": 19,
-  "dev_absent": 4,
-  "test_absent": 4,
+  "dev_bottles": 27,
+  "test_bottles": 28,
+  "dev_matched": 20,
+  "test_matched": 21,
+  "dev_absent": 7,
+  "test_absent": 7,
   "fold_sizes": {
-    "0": 5,
-    "1": 5,
-    "2": 4,
-    "3": 4,
-    "4": 4
+    "0": 6,
+    "1": 6,
+    "2": 5,
+    "3": 5,
+    "4": 5
   }
 }

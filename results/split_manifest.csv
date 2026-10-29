@@ -1,6 +1,7 @@
 bottle_id,status,product_id,pool,fold
 b001,matched,p19351,test,
 b002,matched,p22714,test,
+b003,matched,p07549,test,
 b004,matched,p07551,test,
 b005,matched,p02211,test,
 b006,matched,p15233,dev,2
@@ -17,6 +18,8 @@ b021,matched,p10423,test,
 b022,matched,p24496,test,
 b023,matched,p24471,dev,3
 b024,matched,p23446,test,
+b025,absent,,dev,4
+b027,matched,p24449,test,
 b028,absent,,dev,3
 b030,matched,p12029,test,
 b032,matched,p03345,test,
@@ -31,6 +34,7 @@ b040,matched,p14182,test,
 b041,matched,p13918,test,
 b042,matched,p00199,dev,2
 b043,matched,p00688,test,
+b044,absent,,test,
 b045,matched,p14500,dev,4
 b046,absent,,dev,0
 b048,matched,p12527,test,
@@ -44,3 +48,9 @@ b055,absent,,dev,4
 b056,matched,p23326,dev,4
 b057,matched,p12527,dev,1
 b058,matched,p14603,test,
+b059,absent,,dev,1
+b060,matched,p03392,dev,3
+b061,absent,,test,
+b062,absent,,test,
+b063,absent,,dev,0
+b064,matched,p07537,dev,2

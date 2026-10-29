@@ -2,6 +2,11 @@
 
 Refuses to run if results/split_manifest.csv exists, so the split is fixed
 once and committed before any evaluation on real photos.
+
+With --extend, bottles that gained photos after the manifest was written are
+split among themselves by the same rule and seed and appended; every bottle
+already in the manifest keeps its pool and fold (see the preregistration note
+of 2026-10-28 on the second photo round).
 """
 
 from __future__ import annotations
@@ -22,23 +27,31 @@ MANIFEST = ROOT / "results" / "split_manifest.csv"
 
 
 def main() -> int:
-    if MANIFEST.exists():
+    extend = "--extend" in sys.argv[1:]
+    if MANIFEST.exists() and not extend:
         print(f"{MANIFEST.name} exists; the split is fixed and will not be redrawn")
         return 1
     photos = pd.read_csv(ROOT / "data" / "real" / "photos.csv", dtype=str)
     bottles_df = photos.drop_duplicates("bottle_id")[["bottle_id", "status", "product_id"]]
+    old = pd.read_csv(MANIFEST, dtype={"fold": "Int64"}, keep_default_na=False) if extend else bottles_df.iloc[:0]
+    new_df = bottles_df[~bottles_df.bottle_id.isin(old.bottle_id)]
+    if extend and new_df.empty:
+        print("no bottles without a pool; nothing to add")
+        return 1
     matches = pd.read_csv(ROOT / "data" / "real" / "matches.csv", dtype=str, keep_default_na=False).set_index("bottle_id")
     bottles = [
         Bottle(r.bottle_id, matches.loc[r.bottle_id, "brand"], r.status == "matched")
-        for r in bottles_df.itertuples()
+        for r in new_df.itertuples()
     ]
     pool = split_bottles(bottles, seed=SEED, test_fraction=0.5)
     folds = assign_folds([b for b in bottles if pool[b.bottle_id] == "dev"], seed=SEED, n_folds=5)
+    offset = int((old.pool == "dev").sum()) if extend else 0  # continue the round robin over folds
+    folds = {b: (f + offset) % 5 for b, f in folds.items()}
     check_manifest(pool, folds)
-    m = bottles_df.copy()
+    m = new_df.copy()
     m["pool"] = m.bottle_id.map(pool)
     m["fold"] = m.bottle_id.map(folds).astype("Int64")
-    m = m.sort_values("bottle_id")
+    m = pd.concat([old, m]).sort_values("bottle_id")
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     m.to_csv(MANIFEST, index=False)
     summary = {

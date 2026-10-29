@@ -1,7 +1,7 @@
 bottle_id,status,product_id
 b001,matched,p19351
 b002,matched,p22714
-b003,matched,p07533
+b003,matched,p07549
 b004,matched,p07551
 b005,matched,p02211
 b006,matched,p15233
@@ -56,3 +56,9 @@ b055,absent,
 b056,matched,p23326
 b057,matched,p12527
 b058,matched,p14603
+b059,absent,
+b060,matched,p03392
+b061,absent,
+b062,absent,
+b063,absent,
+b064,matched,p07537

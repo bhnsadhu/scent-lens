@@ -1,18 +1,20 @@
 {
-  "photos": 80,
-  "bottles_with_photos": 45,
-  "matched_bottles_with_photos": 37,
-  "absent_bottles_with_photos": 8,
+  "photos": 185,
+  "bottles_with_photos": 55,
+  "matched_bottles_with_photos": 41,
+  "absent_bottles_with_photos": 14,
   "photos_by_condition": {
+    "clean": 53,
+    "cluttered": 53,
     "online": 44,
-    "clean": 18,
-    "cluttered": 18
+    "angled": 25,
+    "partial": 10
   },
   "photos_per_bottle": {
     "min": 1,
-    "max": 3
+    "max": 6
   },
-  "bottles_missing_some_condition": 57,
+  "bottles_missing_some_condition": 63,
   "rejected_files": 0,
   "unreadable_files": 0
 }
