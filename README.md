@@ -2,7 +2,7 @@
 
 ScentLens identifies a fragrance from a photo of its bottle by searching **24,642 catalog fragrances**, and it says "not sure" when it cannot tell.
 
-**Demo:** [huggingface.co/spaces/bhnsadhu/scent-lens](https://huggingface.co/spaces/bhnsadhu/scent-lens) · **Use it from another app:** [docs/integration.md](docs/integration.md)
+**Demo:** [bhnsadhu--scent-lens-web.us-east.modal.run](https://bhnsadhu--scent-lens-web.us-east.modal.run) (first load after idle about 45 s) · **Use it from another app:** [docs/integration.md](docs/integration.md)
 
 The research question, set before any real photo was scored ([preregistration](docs/experiments/preregistration.md)): how much does recognition fall from catalog shots to real phone photos, which conditions break it, and can the system tell when it is wrong?
 
@@ -48,7 +48,7 @@ flowchart LR
   - The threshold is the lowest at which the development photos give a 95% upper bound on error of at most 10% (Clopper–Pearson).
   - A guard refuses when most of the words read do not belong to the guess.
   - A clear label rule answers when every brand and name word of exactly one product was read.
-- **Latency:** 1.2 s per photo on an Apple M series GPU, and 2.5 s median on its CPU ([recognizer_rapidocr.md](results/recognizer_rapidocr.md)).
+- **Latency:** 1.2 s per photo on an Apple M series GPU, and 2.5 s median on its CPU ([recognizer_rapidocr.md](results/recognizer_rapidocr.md)). The hosted demo takes about 6 s on 4 cloud CPU cores; the bottle crop is 5 s of that (the result's `timings` field breaks it down).
 
 ## Data
 
@@ -184,7 +184,7 @@ The real photos are private, so the photo evaluations can't be rerun from this r
 
 - Rights to the doevent/perfume catalog images are unverified. No catalog image appears in this repo, its charts or the demo. The demo shows names only.
 - This repo contains no photos.
-- The Hugging Face Space holds the merged model, float16 catalog embeddings and product metadata derived from the dataset, plus six of the author's own photos shared with consent. A free Space sleeps when idle, so the first request can take a minute.
+- The hosted demo ([deploy/modal_app.py](deploy/modal_app.py), Modal free tier) holds the merged model, float16 catalog embeddings and product metadata derived from the dataset, plus six of the author's own photos shared with consent. It shuts down when idle, so the first request can take about a minute.
 - Web test photos stay local. Their licenses (CC BY, CC BY-SA, some non-commercial or no-derivatives) are listed in [web_sources.csv](results/web_sources.csv).
 - Base models: SigLIP 2 and OWLv2 (Google), DINOv2 (Meta), CLIP (LAION OpenCLIP). OCR: macOS Vision and RapidOCR.
 

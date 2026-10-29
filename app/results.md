@@ -37,4 +37,4 @@ Both wrong answers on the test photos were bottles that are not in the catalog, 
 - The demo only knows catalog fragrances.
 - It is answered most often from a front view with a readable label. Rear views, side views and photos where a hand covers the bottle are rarely answered.
 - It handles one bottle per photo.
-- It takes about 2.5 s per photo on a laptop CPU, and longer on a free shared Space.
+- It takes about 2.5 s per photo on a laptop CPU, and about 6 s on this demo's 4 cloud CPU cores.

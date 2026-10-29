@@ -21,7 +21,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-STOP E done (app/samples.txt). STOP F: Space name and a write token. The README can be written meanwhile.
+STOP E done (app/samples.txt). STOP F done: Hugging Face now charges for Gradio Spaces, so the demo runs on Modal's free tier (deploy/modal_app.py, https://bhnsadhu--scent-lens-web.us-east.modal.run). Remaining: push to GitHub with the user's approval.
 
 ## Next action
 

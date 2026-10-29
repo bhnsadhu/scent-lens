@@ -20,14 +20,14 @@ result.to_dict()
 
 The export folder is written by `scripts/export_model.py`.
 
-## 2. Over HTTP, through the Hugging Face Space
+## 2. Over HTTP, through the hosted demo
 
-The Space serves the same function as the API endpoint `identify`. From Python:
+The demo at https://bhnsadhu--scent-lens-web.us-east.modal.run serves the same function as the API endpoint `identify`. From Python:
 
 ```python
 from gradio_client import Client, handle_file
 
-client = Client("<user>/scent-lens")
+client = Client("https://bhnsadhu--scent-lens-web.us-east.modal.run/")
 result = client.predict(handle_file("bottle.jpg"), api_name="/identify")
 ```
 
@@ -36,11 +36,11 @@ From JavaScript or TypeScript (for example a Next.js server route), use `@gradio
 ```ts
 import { Client, handle_file } from "@gradio/client";
 
-const client = await Client.connect("<user>/scent-lens");
+const client = await Client.connect("https://bhnsadhu--scent-lens-web.us-east.modal.run/");
 const { data } = await client.predict("/identify", { image: handle_file(blob) });
 ```
 
-A free Space sleeps when idle, so the first request after a pause can take a minute or more. It also runs on a shared CPU. Measured CPU latency is in `results/recognizer_rapidocr.md`.
+The demo runs on Modal's free tier with at most one container. It shuts down after 5 idle minutes, so the first request after a pause takes about a minute while it starts. After that, a photo takes about 6 s on its 4 CPU cores. A production app would want its own deployment ([deploy/modal_app.py](../deploy/modal_app.py)), or a GPU, where the same call takes about 1 s.
 
 ## The result
 
@@ -56,7 +56,8 @@ A free Space sleeps when idle, so the first request after a pause can take a min
   ],
   "text_read": ["CHANCE", "CHANEL"],
   "box": [120, 40, 610, 980],
-  "seconds": 1.16
+  "seconds": 1.16,
+  "timings": {"crop": 0.85, "embed": 0.12, "read": 0.18, "match": 0.01}
 }
 ```
 
@@ -69,7 +70,7 @@ A free Space sleeps when idle, so the first request after a pause can take a min
 | `matches` | The top 3 catalog products. `score` is image similarity plus 0.3 times the label match, which ranks matches but is not a probability. |
 | `text_read` | The label text that was read. |
 | `box` | The bottle crop, in the frame of the photo resized to at most 1024 pixels on its longer side. |
-| `seconds` | Time taken by the call. |
+| `seconds`, `timings` | Total time of the call, and seconds per step: bottle crop (OWLv2), embedding at 3 rotations, label reading, matching. |
 
 `reason` is one of the following:
 

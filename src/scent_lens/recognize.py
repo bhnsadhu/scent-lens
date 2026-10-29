@@ -47,6 +47,7 @@ class Result:
     text: list[str]
     box: tuple[int, int, int, int] | None
     seconds: float = 0.0
+    timings: dict = field(default_factory=dict)  # seconds per step: crop, embed, read, match
 
     @property
     def best(self) -> Match | None:
@@ -58,7 +59,8 @@ class Result:
                 "product_id": self.best.product_id if self.best else None,
                 "matches": [{"product_id": m.product_id, "brand": m.brand, "name": m.name, "score": round(m.score, 4)} | m.details
                             for m in self.matches],
-                "text_read": self.text, "box": list(self.box) if self.box else None, "seconds": round(self.seconds, 3)}
+                "text_read": self.text, "box": list(self.box) if self.box else None, "seconds": round(self.seconds, 3),
+                "timings": {k: round(v, 3) for k, v in self.timings.items()}}
 
 
 def decide(scores: np.ndarray, text: np.ndarray, explained: float, read: bool, brands: Sequence[str],
@@ -130,13 +132,17 @@ class Recognizer:
         from scent_lens.photos import as_saved, clean_image, clean_pil
 
         t0 = time.perf_counter()
+        marks = {}
         # the same path as the measured photos: cleaned and saved, then cropped and saved
         img = as_saved(clean_image(image) if isinstance(image, str | Path) else clean_pil(image))
         box, _ = self.detector.detect(img)
         crop = as_saved(apply_crop(img, box))
+        marks["crop"] = time.perf_counter()
         views = [crop] + [crop.transpose(r) for r in ROTATIONS.values()]
         scores = self.gallery.scores(self.encoder.encode_images(views)).max(axis=0)
+        marks["embed"] = time.perf_counter()
         lines = [t for v in views for t in self.reader(v)]
+        marks["read"] = time.perf_counter()
         text = self.matcher.text_score(lines)
         top0 = int(np.argmax(scores + self.settings["text_weight"] * text))
         explained = self.matcher.explained(lines, top0)
@@ -148,4 +154,8 @@ class Recognizer:
             pid = self.gallery.products[i]
             row = self.products.loc[pid]
             matches.append(Match(pid, row.brand, row["name"], float(total[i]), row.drop(["brand", "name"]).to_dict()))
-        return Result(answered, reason, conf, matches, lines, box, time.perf_counter() - t0)
+        marks["match"] = time.perf_counter()
+        prev, timings = t0, {}
+        for step, t in marks.items():
+            timings[step], prev = t - prev, t
+        return Result(answered, reason, conf, matches, lines, box, marks["match"] - t0, timings)
