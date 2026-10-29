@@ -6,7 +6,11 @@ then applied unchanged to the test photos and to the web set. Test numbers
 were measured after the test split had been seen once, so they are optimistic.
 The web set (data/real/web, Wikimedia Commons and Flickr photos of products that were
 never trained on, tested, or used for any choice; scripts/ingest_web.py) is
-the fresh check. Writes results/v2_results.json and results/v2_results.md.
+the fresh check. Writes results/v2_results.json, results/v2_results.md, and
+results/calibrator_v2.json (the settings of the kept variant, read by the demo).
+With --reader rapidocr the label is read by RapidOCR instead of the macOS
+Vision framework, every choice is remade on development photos the same way,
+and the outputs get a _rapidocr suffix.
 
 Variants:
   base      the version 1 final system (fine tuned SigLIP 2, cropped query)
@@ -50,6 +54,7 @@ os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
 from scent_lens.assets import catalog, gallery_for, photo_embeddings, products  # noqa: E402
 from scent_lens.calibration import (  # noqa: E402
     FEATURES,
+    calibrator_to_dict,
     choose_threshold,
     fit_calibrator,
     out_of_fold_probs,
@@ -63,6 +68,7 @@ V2 = ROOT / "artifacts" / "real" / "v2"
 WEB = ROOT / "data" / "real" / "web"
 ROTATIONS = {90: Image.Transpose.ROTATE_90, 270: Image.Transpose.ROTATE_270}
 GUARD_SHARE = 0.5
+KEPT = "label"  # the version 2 variant the demo serves (docs/decisions.md)
 WEIGHTS = [0.0, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0]
 NAMES = {"base": "Version 1 final system", "rotate": "+ rotations (0, 90, 270)",
          "ocr": "+ label text bonus (w chosen on dev)", "guard": "+ label guard on answering",
@@ -139,11 +145,13 @@ def full_res_crop(photo_id: str, crop_path: Path, boxes: pd.DataFrame) -> Image.
     return big.crop(tuple(round(k * v) for v in (b.x0, b.y0, b.x1, b.y1)))
 
 
-def ocr_lines(photos: pd.DataFrame, full: bool = False) -> dict[str, list[str]]:
+def ocr_lines(photos: pd.DataFrame, full: bool = False, reader: str = "vision") -> dict[str, list[str]]:
     """Text read on each cropped query at 0, 90 and 270 degrees, cached."""
-    from scent_lens.ocr import read_text
+    from scent_lens.ocr import READERS
 
-    cache = V2 / ("ocr_full.json" if full else "ocr.json")
+    read_text = READERS[reader]()
+    suffix = "" if reader == "vision" else f"_{reader}"
+    cache = V2 / (("ocr_full" if full else "ocr") + suffix + ".json")
     lines = json.loads(cache.read_text()) if cache.exists() else {}
     boxes = pd.read_csv(ROOT / "artifacts" / "real" / "crops.csv").set_index("photo_id")
     for r in photos.itertuples():
@@ -161,8 +169,10 @@ def interval(groups, values) -> dict:
 
 
 def evaluate(name: str, rec: pd.DataFrame, features: list[str], guard: np.ndarray | None,
-             strong: np.ndarray | None = None) -> dict:
+             strong: np.ndarray | None = None) -> tuple[dict, object]:
     """Accuracy per pool, and abstention fitted on development photos then applied unchanged.
+
+    Returns the results and the calibrator fitted on all development photos.
 
     guard: photos that may be answered at all. strong: photos always answered
     (a clear label match), scored above any calibrated probability.
@@ -197,12 +207,13 @@ def evaluate(name: str, rec: pd.DataFrame, features: list[str], guard: np.ndarra
             d.update({"selective_accuracy": sa, "coverage": cov, "answered": int((p >= thr).sum()),
                       "absent_answered": int((p[absent] >= thr).sum()), "absent_photos": int(absent.sum())})
         out[pool] = d
-    return out
+    return out, cal
 
 
-def report(results: list[dict], n_web_products: int) -> str:
+def report(results: list[dict], n_web_products: int, reader: str = "vision") -> str:
     f = lambda x: "n/a" if x is None or (isinstance(x, float) and np.isnan(x)) else f"{100 * x:.1f}"  # noqa: E731
-    L = ["# Version 2 experiments (after the test)", "",
+    title = "# Version 2 experiments (after the test)" + ("" if reader == "vision" else f", label read by {reader}")
+    L = [title, "",
          "Run after the one time test of version 1 (results/test_results.md). Every choice (rotation set, text weight, guard share, calibrator, threshold) was made on development photos only; the calibrator and threshold were refitted on development photos exactly as rules 5 and 6 and applied unchanged elsewhere.", "",
          "* Test: the version 1 test photos. These bottles were seen before the changes were made, so these columns are optimistic.",
          f"* Web: a fresh set of {results[0]['web']['photos']} openly licensed Wikimedia Commons and Flickr photos of {n_web_products} catalog products that were never in the fine tune training sample, the bottle list, or any choice (sources and licenses in results/web_sources.csv). Most are product style shots, so they are easier than phone photos; none has a not in catalog bottle, so abstention there only measures wrong answers on matched products.", "",
@@ -233,7 +244,9 @@ def report(results: list[dict], n_web_products: int) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--variants", default="base,rotate,ocr,guard,ocr_full,guard_full,label,label_full")
+    ap.add_argument("--reader", default="vision", choices=["vision", "rapidocr"])
     args = ap.parse_args()
+    suffix = "" if args.reader == "vision" else f"_{args.reader}"
     gal = catalog()
     prods = products(gal)
     manifest = pd.read_csv(ROOT / "results" / "split_manifest.csv", dtype={"fold": "Int64"}, keep_default_na=False)
@@ -255,7 +268,7 @@ def main() -> int:
             from scent_lens.ocr import TextMatcher
 
             tm = TextMatcher(prods, g.products)
-            lines = ocr_lines(photos, full=v.endswith("_full"))
+            lines = ocr_lines(photos, full=v.endswith("_full"), reader=args.reader)
             text = np.stack([tm.text_score(lines[p]) for p in photos.photo_id])
             dev_top1 = {}
             for w in WEIGHTS:  # chosen on development photos only
@@ -283,15 +296,20 @@ def main() -> int:
                 if v.startswith("label"):
                     unique = (text >= 1.0).sum(axis=1) == 1
                     strong = ((rec.text1 >= 1.0) & (rec.text_explained >= GUARD_SHARE)).to_numpy() & unique
-        rec.to_csv(V2 / f"records_{v}.csv", index=False)
-        results.append({**evaluate(v, rec, features, guard, strong), **extra})
+        rec.to_csv(V2 / f"records_{v}{suffix}.csv", index=False)
+        res, cal = evaluate(v, rec, features, guard, strong)
+        results.append({**res, **extra})
+        if v == KEPT:
+            saved = {"variant": v, "reader": args.reader, "rotations": [0, *ROTATIONS], "text_weight": extra["weight"], "guard_share": GUARD_SHARE,
+                     "threshold": res["threshold"], "calibrator": calibrator_to_dict(cal) | {"features": features}}
+            (ROOT / "results" / f"calibrator_v2{suffix}.json").write_text(json.dumps(saved, indent=2) + "\n")
         r = results[-1]
         print(f"{v:7s} dev {r['dev']['top1']:.3f} | test {r['test']['top1']:.3f} phone {r['test']['phone_top1']:.3f} | "
               f"web {r['web']['top1']:.3f} | thr {r['threshold']} | test sel {r['test'].get('selective_accuracy')} "
               f"cov {r['test'].get('coverage')} | web sel {r['web'].get('selective_accuracy')} cov {r['web'].get('coverage')}", flush=True)
-    (ROOT / "results" / "v2_results.json").write_text(json.dumps(results, indent=2, default=float) + "\n")
+    (ROOT / "results" / f"v2_results{suffix}.json").write_text(json.dumps(results, indent=2, default=float) + "\n")
     n_web = int(photos[photos.pool == "web"].bottle_id.nunique())
-    (ROOT / "results" / "v2_results.md").write_text(report(results, n_web))
+    (ROOT / "results" / f"v2_results{suffix}.md").write_text(report(results, n_web, args.reader))
     return 0
 
 

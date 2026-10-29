@@ -1,0 +1,54 @@
+{
+  "reader": "rapidocr",
+  "device": "cpu",
+  "settings": "results/calibrator_v2.json",
+  "median_seconds": 2.4487050829920918,
+  "p90_seconds": 3.1183833084069192,
+  "dev": {
+    "photos": 101,
+    "top1": 0.6172839506172839,
+    "top3": 0.7037037037037037,
+    "answered": 25,
+    "coverage": 0.24752475247524752,
+    "selective_accuracy": 1.0,
+    "absent_answered": 0,
+    "absent_photos": 20,
+    "same_top1_as_eval": 0.9405940594059405,
+    "wrong_answers": []
+  },
+  "test": {
+    "photos": 84,
+    "top1": 0.7121212121212122,
+    "top3": 0.7424242424242424,
+    "answered": 24,
+    "coverage": 0.2857142857142857,
+    "selective_accuracy": 0.9166666666666666,
+    "absent_answered": 2,
+    "absent_photos": 18,
+    "same_top1_as_eval": 0.9761904761904762,
+    "wrong_answers": [
+      {
+        "photo_id": "b015__online__1",
+        "status": "absent",
+        "predicted": "p10164"
+      },
+      {
+        "photo_id": "b017__online__1",
+        "status": "absent",
+        "predicted": "p05438"
+      }
+    ]
+  },
+  "web": {
+    "photos": 42,
+    "top1": 0.7380952380952381,
+    "top3": 0.8571428571428571,
+    "answered": 18,
+    "coverage": 0.42857142857142855,
+    "selective_accuracy": 1.0,
+    "absent_answered": 0,
+    "absent_photos": 0,
+    "same_top1_as_eval": 0.9285714285714286,
+    "wrong_answers": []
+  }
+}

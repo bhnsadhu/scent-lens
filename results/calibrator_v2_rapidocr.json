@@ -1,0 +1,36 @@
+{
+  "variant": "label",
+  "reader": "rapidocr",
+  "rotations": [
+    0,
+    90,
+    270
+  ],
+  "text_weight": 0.5,
+  "guard_share": 0.5,
+  "threshold": null,
+  "calibrator": {
+    "kind": "logistic",
+    "features": [
+      "top1_sim",
+      "margin",
+      "brand_agree5"
+    ],
+    "feature_mean": [
+      0.8166621665946722,
+      0.08975313024552349,
+      0.6455445544554456
+    ],
+    "feature_std": [
+      0.23016449811032894,
+      0.1153511577043713,
+      0.3364122743181797
+    ],
+    "coef": [
+      0.2928086703722565,
+      2.312149656095594,
+      0.40423049676140194
+    ],
+    "intercept": 0.7308726207669753
+  }
+}

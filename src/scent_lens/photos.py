@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import io
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import BinaryIO
 
 from PIL import Image, ImageOps
 
@@ -52,19 +54,35 @@ def clean_image(src: str | Path, max_side: int = MAX_SIDE) -> Image.Image:
     a fresh image made from the pixel data alone.
     """
     with Image.open(src) as img:
-        img = ImageOps.exif_transpose(img)
-        if img.mode in ("RGBA", "LA", "P"):  # transparent product shots go on white, not black
-            rgba = img.convert("RGBA")
-            img = Image.new("RGBA", rgba.size, "white")
-            img.alpha_composite(rgba)
-        img = img.convert("RGB")
-        img.thumbnail((max_side, max_side), Image.LANCZOS)
-        clean = Image.frombytes("RGB", img.size, img.tobytes())
-    return clean
+        return clean_pil(img, max_side)
 
 
-def save_clean(img: Image.Image, dst: str | Path) -> None:
+def clean_pil(img: Image.Image, max_side: int = MAX_SIDE) -> Image.Image:
+    """clean_image for an already opened image (an upload in the demo)."""
+    img = ImageOps.exif_transpose(img)
+    if img.mode in ("RGBA", "LA", "P"):  # transparent product shots go on white, not black
+        rgba = img.convert("RGBA")
+        img = Image.new("RGBA", rgba.size, "white")
+        img.alpha_composite(rgba)
+    img = img.convert("RGB")
+    img.thumbnail((max_side, max_side), Image.LANCZOS)
+    return Image.frombytes("RGB", img.size, img.tobytes())
+
+
+def save_clean(img: Image.Image, dst: str | Path | BinaryIO) -> None:
     img.save(dst, format="JPEG", quality=92, exif=b"", optimize=True)
+
+
+def as_saved(img: Image.Image) -> Image.Image:
+    """The image as save_clean writes and a reader loads it back (JPEG round trip in memory).
+
+    Every reported result was measured on saved crops, and the fine tuned model
+    notices the JPEG change, so live queries take the same path.
+    """
+    buf = io.BytesIO()
+    save_clean(img, buf)
+    buf.seek(0)
+    return Image.open(buf).convert("RGB")
 
 
 def conditions_for_folder(n_files: int) -> list[tuple[str, int]] | None:

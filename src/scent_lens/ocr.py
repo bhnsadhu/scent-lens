@@ -1,6 +1,7 @@
 """Label reading for version 2: OCR text from a query photo, matched to catalog names.
 
-Text is read with the macOS Vision framework (ocrmac). Words are normalized
+Text is read with the macOS Vision framework (ocrmac, every reported result) or,
+off macOS, RapidOCR (READERS). Words are normalized
 like catalog names; generic words (concentrations, "pour homme", sizes,
 cities) are dropped, so a match rests on brand and fragrance name words.
 Each OCR word fuzzy matches catalog vocabulary words, which tolerates
@@ -38,6 +39,22 @@ def read_text(image, min_confidence: float = 0.3) -> list[str]:
     from ocrmac import ocrmac
 
     return [t for t, conf, _ in ocrmac.OCR(image, recognition_level="accurate").recognize() if conf >= min_confidence]
+
+
+def rapid_reader():
+    """A cross platform reader (RapidOCR: PaddleOCR models on ONNX Runtime, CPU), library defaults."""
+    from rapidocr_onnxruntime import RapidOCR
+
+    engine = RapidOCR()
+
+    def read(image) -> list[str]:
+        result, _ = engine(np.asarray(image.convert("RGB"))[:, :, ::-1])  # RapidOCR takes BGR
+        return [t for _, t, _ in result or []]
+
+    return read
+
+
+READERS = {"vision": lambda: read_text, "rapidocr": rapid_reader}
 
 
 class TextMatcher:

@@ -15,23 +15,14 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 6: fine tune (grid of 4 runs, results/runs.jsonl; rule 4 picks lr 1e-4 strength 1.0 epoch 1: proxy top 1 48.1 vs frozen 34.6); rule 7 adds a bottle crop of queries (53.1 vs 34.6 full gallery)
 - [x] Phase 7: confidence and abstention (logistic calibrator, threshold 0.641: answers 33 of 101 development photos, all correct, abstains on every absent bottle photo; results/calibrator.json)
 - [x] Phase 8: final evaluation, once (2026-10-29, results/test_results.md: final system 66.7 strict top 1, H2 H4 H5 H7 supported, H1 inconclusive, H3 not tested, H6 refuted at 83.0 selective accuracy)
-- [ ] Phase 9: demo (STOP E, STOP F)
+- [x] Version 2 after the test (results/v2_results.md: rotations, label reading, answer guard and clear label rule; web set of 42 openly licensed photos)
+- [ ] Phase 9: demo. Done: export (scripts/export_model.py), recognizer (scent_lens.recognize, docs/integration.md), end to end check (results/recognizer_*.md), RapidOCR for non macOS hosts, Gradio app (app/app.py, API endpoint identify), Space bundler (scripts/build_space.py). Waiting on STOP E and STOP F.
 - [ ] Phase 10: readme and finish
 
 ## Current stop
 
-Phase 9 (demo) waits for STOP E: the user approves which of their own phone photos may appear (online images are excluded; photos with a person, screen or mail in frame are excluded).
+STOP E: the user approves 5 or 6 of their own phone photos for the demo samples (listed in app/samples.txt; online and web images are excluded; no person, screen, address or mail in frame; friends' bottles need their consent). Then STOP F: Space name and a write token. The README can be written meanwhile.
 
 ## Next action
 
-Phase 2 is running in the background: `scripts/embed_catalog.py --backbone dinov2`, then `scripts/synth_embed.py`, then `scripts/synth_eval.py` (log logs/phase2.log). All resumable: rerun the same commands; done chunks are skipped.
-After it: read results/synthetic_eval.md, commit results and charts, record headline decisions, then STOP C (bottle list).
-Already written for later phases: match_bottles.py (draft/apply), make_shot_list.py, ingest_photos.py, make_splits.py, embed_photos.py, eval_dev.py, finetune module, calibration, lock.
-
-Tools: ~/.local/bin/uv and ~/.local/bin/gh (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1, NO_ALBUMENTATIONS_UPDATE=1, and HF_HUB_OFFLINE=1 (weights cached; without it the hub check can stall a run for minutes).
-Disk: about 8.5 GB free. Watch it.
-
-## Seeds
-
-- 20261015: synthetic query sample (results/synthetic_query_ids.csv), augmentation seeds (20261015 + 100 * query_index + condition index), bootstrap, gallery sweep draws (20261015 + size), split manifest.
-- 7: pandas random_state for the 50 image spot check.
+Write the README (phase 10 spec in docs/PLAN.md), with ScentLens as a standalone project whose recognizer will later serve Accord (docs/integration.md). Run the demo locally: `SCENTLENS_READER=rapidocr .venv/bin/python app/app.py`. Bundle the Space: `.venv/bin/python scripts/build_space.py <github user>`, which writes artifacts/space.
