@@ -21,7 +21,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 
 ## Current stop
 
-STOP E: the user approves 5 or 6 of their own phone photos for the demo samples (listed in app/samples.txt; online and web images are excluded; no person, screen, address or mail in frame; friends' bottles need their consent). Then STOP F: Space name and a write token. The README can be written meanwhile.
+STOP E done (app/samples.txt). STOP F: Space name and a write token. The README can be written meanwhile.
 
 ## Next action
 
