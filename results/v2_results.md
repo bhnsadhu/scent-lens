@@ -11,6 +11,10 @@ Run after the one time test of version 1 (results/test_results.md). Every choice
 | + rotations (0, 90, 270) | 54.3 | 69.7 | 60.4 | 72.2 | 64.3 [46.2, 81.5] | 82.1 |
 | + label text bonus (w chosen on dev) | 65.4 | 71.2 | 60.4 | 72.2 | 85.7 [70.4, 96.7] | 96.4 |
 | + label guard on answering | 65.4 | 71.2 | 60.4 | 72.2 | 85.7 [70.4, 96.7] | 96.4 |
+| + label read at full resolution | 65.4 | 72.7 | 62.5 | 75.0 | 85.7 [70.4, 96.7] | 96.4 |
+| + full resolution label and guard | 65.4 | 72.7 | 62.5 | 75.0 | 85.7 [70.4, 96.7] | 96.4 |
+| + answer on a clear label match | 65.4 | 71.2 | 60.4 | 72.2 | 85.7 [70.4, 96.7] | 96.4 |
+| + clear label match, full resolution | 65.4 | 72.7 | 62.5 | 75.0 | 85.7 [70.4, 96.7] | 96.4 |
 
 ## Answering ("not sure" otherwise)
 
@@ -20,6 +24,10 @@ Run after the one time test of version 1 (results/test_results.md). Every choice
 | + rotations (0, 90, 270) | 0.683 | 32.7%, 100.0% | 51.2%, 86.0% | 5 of 18 | 50.0%, 92.9% |
 | + label text bonus (w chosen on dev) | none qualifies | | | | |
 | + label guard on answering | 0.670 | 29.7%, 100.0% | 35.7%, 93.3% | 2 of 18 | 35.7%, 100.0% |
+| + label read at full resolution | none qualifies | | | | |
+| + full resolution label and guard | 0.521 | 35.6%, 100.0% | 40.5%, 88.2% | 2 of 18 | 46.4%, 92.3% |
+| + answer on a clear label match | 0.670 | 30.7%, 100.0% | 35.7%, 93.3% | 2 of 18 | 35.7%, 100.0% |
+| + clear label match, full resolution | 0.521 | 36.6%, 100.0% | 40.5%, 88.2% | 2 of 18 | 46.4%, 92.3% |
 
 Text weight chosen on development photos: 0.3 (development top 1 by weight: 0.0 54.3, 0.02 56.8, 0.05 58.0, 0.1 59.3, 0.15 64.2, 0.2 64.2, 0.3 65.4, 0.4 64.2, 0.5 64.2, 0.75 61.7, 1.0 60.5).
 

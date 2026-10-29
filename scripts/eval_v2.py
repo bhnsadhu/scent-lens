@@ -18,6 +18,17 @@ Variants:
             nothing was read, or at least half the words read match the
             guessed product (GUARD_SHARE); the threshold is chosen with the
             guard applied, on development photos
+  ocr_full, guard_full
+            the same, with the label read on the crop cut from the full
+            resolution original (phone photos are about 4 times larger than
+            the 1024 pixel processed copy)
+  label, label_full
+            guard, and also always answering on a clear label match: every
+            brand and name word of the guessed product was read, at least
+            half the words read belong to it, and no other catalog product
+            has all its words read (a label reading only "Miss Dior" fits
+            dozens of products); the threshold is chosen with these answers
+            included
 """
 
 from __future__ import annotations
@@ -54,7 +65,9 @@ ROTATIONS = {90: Image.Transpose.ROTATE_90, 270: Image.Transpose.ROTATE_270}
 GUARD_SHARE = 0.5
 WEIGHTS = [0.0, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0]
 NAMES = {"base": "Version 1 final system", "rotate": "+ rotations (0, 90, 270)",
-         "ocr": "+ label text bonus (w chosen on dev)", "guard": "+ label guard on answering"}
+         "ocr": "+ label text bonus (w chosen on dev)", "guard": "+ label guard on answering",
+         "ocr_full": "+ label read at full resolution", "guard_full": "+ full resolution label and guard",
+         "label": "+ answer on a clear label match", "label_full": "+ clear label match, full resolution"}
 
 
 def query_photos(manifest: pd.DataFrame) -> pd.DataFrame:
@@ -106,15 +119,36 @@ def crop_embeddings(photos: pd.DataFrame, deg: int, enc_holder: dict) -> np.ndar
     return np.stack([have[p] for p in photos.photo_id]).astype(np.float32)
 
 
-def ocr_lines(photos: pd.DataFrame) -> dict[str, list[str]]:
+def full_res_crop(photo_id: str, crop_path: Path, boxes: pd.DataFrame) -> Image.Image:
+    """The query crop cut from the full resolution original; web photos only exist at crop size."""
+    from scent_lens.photos import clean_image, register_heif
+
+    register_heif()
+    raw = sorted((ROOT / "data" / "real" / "raw").glob(f"{photo_id}.*"))
+    if "__online__" in photo_id:
+        bottle, _, n = photo_id.split("__")
+        pack = ROOT / "data" / "real" / "online_refs" / "scentlens_audited"
+        entry = next(b for b in json.loads((pack / "photo_manifest.json").read_text())["bottles"] if b["id"] == bottle)
+        raw = [pack / entry["photos"][int(n) - 1]["file"]]
+    if not raw or photo_id not in boxes.index:
+        return Image.open(crop_path).convert("RGB")
+    big = clean_image(raw[0], max_side=100_000)  # orientation and transparency handled, size kept
+    small = Image.open(ROOT / "data" / "real" / "processed" / f"{photo_id}.jpg")
+    k = big.size[0] / small.size[0]
+    b = boxes.loc[photo_id]
+    return big.crop(tuple(round(k * v) for v in (b.x0, b.y0, b.x1, b.y1)))
+
+
+def ocr_lines(photos: pd.DataFrame, full: bool = False) -> dict[str, list[str]]:
     """Text read on each cropped query at 0, 90 and 270 degrees, cached."""
     from scent_lens.ocr import read_text
 
-    cache = V2 / "ocr.json"
+    cache = V2 / ("ocr_full.json" if full else "ocr.json")
     lines = json.loads(cache.read_text()) if cache.exists() else {}
+    boxes = pd.read_csv(ROOT / "artifacts" / "real" / "crops.csv").set_index("photo_id")
     for r in photos.itertuples():
         if r.photo_id not in lines:
-            img = Image.open(r.crop).convert("RGB")
+            img = full_res_crop(r.photo_id, r.crop, boxes) if full else Image.open(r.crop).convert("RGB")
             lines[r.photo_id] = read_text(img) + [t for deg in ROTATIONS for t in read_text(img.transpose(ROTATIONS[deg]))]
     V2.mkdir(parents=True, exist_ok=True)
     cache.write_text(json.dumps(lines, indent=1) + "\n")
@@ -126,16 +160,22 @@ def interval(groups, values) -> dict:
     return {"value": point, "lo": lo, "hi": hi}
 
 
-def evaluate(name: str, rec: pd.DataFrame, features: list[str], guard: np.ndarray | None) -> dict:
-    """Accuracy per pool, and abstention fitted on development photos then applied unchanged."""
+def evaluate(name: str, rec: pd.DataFrame, features: list[str], guard: np.ndarray | None,
+             strong: np.ndarray | None = None) -> dict:
+    """Accuracy per pool, and abstention fitted on development photos then applied unchanged.
+
+    guard: photos that may be answered at all. strong: photos always answered
+    (a clear label match), scored above any calibrated probability.
+    """
     guard = np.ones(len(rec), bool) if guard is None else guard
+    strong = np.zeros(len(rec), bool) if strong is None else strong
     is_dev = (rec.pool == "dev").to_numpy()
     dev = rec[is_dev]
     X = lambda r: r[features].to_numpy(float)  # noqa: E731
     y_dev = dev.top1.to_numpy(int)
     oof = {k: out_of_fold_probs(X(dev), y_dev, dev.fold.astype(int).to_numpy(), kind=k, seed=SEED) for k in ("logistic", "isotonic")}
     kind = "isotonic" if brier(oof["logistic"], y_dev) - brier(oof["isotonic"], y_dev) > 0.01 else "logistic"
-    p_dev = np.where(guard[is_dev], oof[kind], -1.0)  # guarded photos are never answered
+    p_dev = np.where(strong[is_dev], 2.0, np.where(guard[is_dev], oof[kind], -1.0))  # guarded photos are never answered
     thr = choose_threshold(p_dev, y_dev, 0.90)
     cal = fit_calibrator(X(dev), y_dev, kind, SEED)
     out = {"variant": name, "kind": kind, "threshold": None if not np.isfinite(thr) else float(thr)}
@@ -151,7 +191,7 @@ def evaluate(name: str, rec: pd.DataFrame, features: list[str], guard: np.ndarra
             d.update({"phone_top1": float(m[ph].top1.mean()), "online_top1": float(m[~ph].top1.mean()),
                       "front_phone_top1": float(m[m.condition.isin(["clean", "cluttered"])].top1.mean())})
         if np.isfinite(thr):
-            p = p_dev if pool == "dev" else np.where(guard[sel], cal.predict(X(r)), -1.0)
+            p = p_dev if pool == "dev" else np.where(strong[sel], 2.0, np.where(guard[sel], cal.predict(X(r)), -1.0))
             sa, cov = selective(p, r.top1.to_numpy(), thr)
             absent = (r.status == "absent").to_numpy()
             d.update({"selective_accuracy": sa, "coverage": cov, "answered": int((p >= thr).sum()),
@@ -192,7 +232,7 @@ def report(results: list[dict], n_web_products: int) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variants", default="base,rotate,ocr,guard")
+    ap.add_argument("--variants", default="base,rotate,ocr,guard,ocr_full,guard_full,label,label_full")
     args = ap.parse_args()
     gal = catalog()
     prods = products(gal)
@@ -206,16 +246,16 @@ def main() -> int:
     for v in args.variants.split(","):
         if v == "base":
             scores = base
-        elif v in ("rotate", "ocr", "guard"):
+        elif v in ("rotate", "ocr", "guard", "ocr_full", "guard_full", "label", "label_full"):
             scores = np.maximum.reduce([base] + [g.scores(crop_embeddings(photos, d, enc)) for d in ROTATIONS])
         else:
             raise ValueError(v)
         extra = {}
-        if v in ("ocr", "guard"):
+        if v.startswith(("ocr", "guard", "label")):
             from scent_lens.ocr import TextMatcher
 
             tm = TextMatcher(prods, g.products)
-            lines = ocr_lines(photos)
+            lines = ocr_lines(photos, full=v.endswith("_full"))
             text = np.stack([tm.text_score(lines[p]) for p in photos.photo_id])
             dev_top1 = {}
             for w in WEIGHTS:  # chosen on development photos only
@@ -226,22 +266,25 @@ def main() -> int:
             extra = {"weight": w, "dev_top1_by_weight": dev_top1}
         rec = records_from_scores(g, prods, scores, photos)
         rec["pool"], rec["fold"] = photos.pool.to_numpy(), photos.fold.to_numpy()
-        features, guard = list(FEATURES), None
-        if v in ("ocr", "guard"):
+        features, guard, strong = list(FEATURES), None, None
+        if v.startswith(("ocr", "guard", "label")):
             from scent_lens.ocr import text_tokens
 
             col = {p: i for i, p in enumerate(g.products)}
             rec["text1"] = text[np.arange(len(rec)), rec.pred1.map(col).to_numpy()]
             rec["text_agree"] = ((rec.text1 > 0) & (rec.text1 >= text.max(axis=1))).astype(float)
             rec["text_explained"] = [tm.explained(lines[p], col[q]) for p, q in zip(rec.photo_id, rec.pred1, strict=True)]
-            if v == "ocr":  # the calibrator also sees the label signals
+            if v.startswith("ocr"):  # the calibrator also sees the label signals
                 features += ["text1", "text_agree", "text_explained"]
             else:
                 read = np.array([bool(text_tokens(" ".join(lines[p]))) for p in rec.photo_id])
                 guard = ~read | (rec.text_explained.to_numpy() >= GUARD_SHARE)
                 extra["guard_share"] = GUARD_SHARE
+                if v.startswith("label"):
+                    unique = (text >= 1.0).sum(axis=1) == 1
+                    strong = ((rec.text1 >= 1.0) & (rec.text_explained >= GUARD_SHARE)).to_numpy() & unique
         rec.to_csv(V2 / f"records_{v}.csv", index=False)
-        results.append({**evaluate(v, rec, features, guard), **extra})
+        results.append({**evaluate(v, rec, features, guard, strong), **extra})
         r = results[-1]
         print(f"{v:7s} dev {r['dev']['top1']:.3f} | test {r['test']['top1']:.3f} phone {r['test']['phone_top1']:.3f} | "
               f"web {r['web']['top1']:.3f} | thr {r['threshold']} | test sel {r['test'].get('selective_accuracy')} "
