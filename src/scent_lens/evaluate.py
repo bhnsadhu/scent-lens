@@ -19,9 +19,15 @@ def photo_records(
     photos: photo_id, bottle_id, condition, status, product_id (empty when the
     bottle is not in the catalog), in the same order as emb.
     """
+    return records_from_scores(gallery, products, gallery.scores(emb), photos, k)
+
+
+def records_from_scores(
+    gallery: Gallery, products: pd.DataFrame, scores: np.ndarray, photos: pd.DataFrame, k: int = 5
+) -> pd.DataFrame:
+    """photo_records from a precomputed (n_photos, n_products) score matrix in gallery column order."""
     truth_ids = [p if isinstance(p, str) and p else None for p in photos["product_id"]]
     truth = gallery.truth_index(truth_ids)
-    scores = gallery.scores(emb)
     ranks = rank_of_truth(scores, truth)
     idx = np.argsort(-scores, axis=1, kind="stable")[:, :k]
     top_scores = np.take_along_axis(scores, idx, axis=1)
