@@ -1,0 +1,38 @@
+web_id,title,page,license,artist,brand,name,use,phash_distance
+w0000,File:2023 Woda perfumowana Prada Paradoxe (1).jpg,https://commons.wikimedia.org/wiki/File:2023_Woda_perfumowana_Prada_Paradoxe_(1).jpg,CC BY-SA 4.0,Jacek Halicki,Prada,Paradoxe,excluded: product of a bottle in the earlier test,28
+w0001,File:2023 Woda perfumowana Prada Paradoxe (2).jpg,https://commons.wikimedia.org/wiki/File:2023_Woda_perfumowana_Prada_Paradoxe_(2).jpg,CC BY-SA 4.0,Jacek Halicki,Prada,Paradoxe,excluded: product of a bottle in the earlier test,30
+w0002,"File:Rain - Eau de Parfum, by Clean classic 1.jpg","https://commons.wikimedia.org/wiki/File:Rain_-_Eau_de_Parfum,_by_Clean_classic_1.jpg",CC BY 4.0,W.carter,Clean,Clean Rain,test,32
+w0003,"File:Rain - Eau de Parfum, by Clean classic 2.jpg","https://commons.wikimedia.org/wiki/File:Rain_-_Eau_de_Parfum,_by_Clean_classic_2.jpg",CC BY 4.0,W.carter,Clean,Clean Rain,test,28
+w0006,File:Prada Infusion d'Iris Cedre.jpg,https://commons.wikimedia.org/wiki/File:Prada_Infusion_d%27Iris_Cedre.jpg,CC BY-SA 4.0,Shack,Prada,Infusion D'Iris Cèdre,test,38
+w0007,File:Bulgari Black.jpg,https://commons.wikimedia.org/wiki/File:Bulgari_Black.jpg,CC BY 3.0,1 nariz por Dênis Pagani,Bulgari,Bvlgari Black,test,26
+w0008,File:Diptyque L'Ombre dans l'Eau EDP.jpg,https://commons.wikimedia.org/wiki/File:Diptyque_L%27Ombre_dans_l%27Eau_EDP.jpg,CC BY-SA 4.0,Shack,Diptyque,L'Ombre Dans L'Eau De Parfum,test,30
+w0009,File:Bvlgari AQVA.jpg,https://commons.wikimedia.org/wiki/File:Bvlgari_AQVA.jpg,CC BY-SA 4.0,Shack,Bulgari,Aqva Pour Homme,test,28
+w0010,File:Eau Sauvage Christian Dior.jpg,https://commons.wikimedia.org/wiki/File:Eau_Sauvage_Christian_Dior.jpg,CC BY-SA 4.0,Olinone,Dior,Eau Sauvage Parfum (2017),excluded: product in the fine tune training sample,26
+w0011,File:Le Labo Santal 33 in a 50 milliliter bottle.jpg,https://commons.wikimedia.org/wiki/File:Le_Labo_Santal_33_in_a_50_milliliter_bottle.jpg,CC BY 3.0,The Honest Channel,Le Labo,Santal 33,excluded: product of a bottle in the earlier test,24
+w0012,File:Parfum Yes I am ! De Cacharel.jpg,https://commons.wikimedia.org/wiki/File:Parfum_Yes_I_am_!_De_Cacharel.jpg,CC BY-SA 4.0,Cherifa khelifa,Cacharel,Yes I Am,test,26
+w0014,File:2023 Woda toaletowa Paco Rabanne 1 Million.jpg,https://commons.wikimedia.org/wiki/File:2023_Woda_toaletowa_Paco_Rabanne_1_Million.jpg,CC BY-SA 4.0,Jacek Halicki,Rabanne,1 Million,test,14
+w0019,File:Sarah Jessica Parker Lovely (cropped).jpg,https://commons.wikimedia.org/wiki/File:Sarah_Jessica_Parker_Lovely_(cropped).jpg,CC BY-SA 3.0,Natalia C.,Sarah Jessica Parker,Lovely Eau De Toilette,test,22
+w0020,File:Sarah Jessica Parker Lovely.jpg,https://commons.wikimedia.org/wiki/File:Sarah_Jessica_Parker_Lovely.jpg,CC BY-SA 3.0,Natalia C.,Sarah Jessica Parker,Lovely Eau De Toilette,test,30
+w0021,File:Daisy by Marc Jacobs.jpg,https://commons.wikimedia.org/wiki/File:Daisy_by_Marc_Jacobs.jpg,CC BY 2.0,Mycatkins,Marc Jacobs,Daisy Eau De Parfum,test,26
+w0022,File:BVLGARI LE GEMME REALI RUBINIA.tif,https://commons.wikimedia.org/wiki/File:BVLGARI_LE_GEMME_REALI_RUBINIA.tif,CC BY-SA 4.0,Antonio Barella,Bulgari,Rubinia,excluded: product in the fine tune training sample,30
+w0024,File:Joop Au de Parfum Miss Wild.JPG,https://commons.wikimedia.org/wiki/File:Joop_Au_de_Parfum_Miss_Wild.JPG,CC BY-SA 3.0,Usien,Joop!,Joop! Miss Wild,test,30
+w0026,"File:Santal EDT, Floris.jpg","https://commons.wikimedia.org/wiki/File:Santal_EDT,_Floris.jpg",CC BY-SA 4.0,Brit in Seoul,Floris,Santal,test,28
+w0027,File:Anna Sui La Vie de Boheme Tester.jpg,https://commons.wikimedia.org/wiki/File:Anna_Sui_La_Vie_de_Boheme_Tester.jpg,CC BY-SA 4.0,Fashionista55,Anna Sui,La Vie De Bohème,excluded: product in the fine tune training sample,22
+w0028,File:Miss Dior Chérie bottle.jpg,https://commons.wikimedia.org/wiki/File:Miss_Dior_Ch%C3%A9rie_bottle.jpg,CC BY 2.0,Natasha d.H,Dior,Miss Dior Chérie Eau De Toilette (2010),test,34
+w0029,File:Anna Sui Lucky Wish on Shelf.jpg,https://commons.wikimedia.org/wiki/File:Anna_Sui_Lucky_Wish_on_Shelf.jpg,CC BY-SA 4.0,Fashionista55,Anna Sui,Lucky Wish 2016,test,32
+w0030,File:Anna Sui Secret Wish.jpg,https://commons.wikimedia.org/wiki/File:Anna_Sui_Secret_Wish.jpg,CC BY-SA 4.0,Fashionista55,Anna Sui,Secret Wish,excluded: product in the fine tune training sample,26
+w0031,File:Anna Sui Romantica Display.jpg,https://commons.wikimedia.org/wiki/File:Anna_Sui_Romantica_Display.jpg,CC BY-SA 4.0,Fashionista55,Anna Sui,Romantica,test,28
+w0032,File:Davidoff Cool Water.jpg,https://commons.wikimedia.org/wiki/File:Davidoff_Cool_Water.jpg,CC BY-SA 3.0,Bruce The Deus,Davidoff,Cool Water,test,26
+w0033,File:Davidoff Cool Water Women.jpg,https://commons.wikimedia.org/wiki/File:Davidoff_Cool_Water_Women.jpg,CC BY 2.0,"Anita Martinz from Klagenfurt, Austria",Davidoff,Cool Water Woman,test,26
+w0034,File:PENHALIGON'S Orange Blossom.jpg,https://commons.wikimedia.org/wiki/File:PENHALIGON%27S_Orange_Blossom.jpg,CC BY-SA 3.0,Oxfordian Kissuth,Penhaligon'S,Orange Blossom,excluded: product in the fine tune training sample,34
+w0035,"File:Paco Rabanne 1 Million Lucky, Eau de Toilette.jpg","https://commons.wikimedia.org/wiki/File:Paco_Rabanne_1_Million_Lucky,_Eau_de_Toilette.jpg",CC BY-SA 4.0,DYVER,Rabanne,1 Million Lucky,test,40
+w0037,File:Création de Pierre camin pour le flacon d'eau de toilette Futur de Robert Piguet.jpg,https://commons.wikimedia.org/wiki/File:Cr%C3%A9ation_de_Pierre_camin_pour_le_flacon_d%27eau_de_toilette_Futur_de_Robert_Piguet.jpg,CC BY-SA 4.0,AnnaDuc,Robert Piguet,Futur,test,28
+w0038,File:Acqua di Parma Colonia.jpg,https://commons.wikimedia.org/wiki/File:Acqua_di_Parma_Colonia.jpg,CC BY-SA 3.0,Freud,Acqua Di Parma,Acqua Di Parma Colonia,test,22
+w0042,File:Lancome Tresor.jpg,https://commons.wikimedia.org/wiki/File:Lancome_Tresor.jpg,CC BY-SA 2.0,Gonna Fly Now,Lancôme,Trésor Eau De Toilette,excluded: product in the fine tune training sample,28
+w0043,File:Joy Jean Patou.jpg,https://commons.wikimedia.org/wiki/File:Joy_Jean_Patou.jpg,CC BY 2.0,Sarchi,Jean Patou,Joy Eau De Toilette,test,30
+w0044,File:Believe fragrance by Britney Spears - box and bottle.jpg,https://commons.wikimedia.org/wiki/File:Believe_fragrance_by_Britney_Spears_-_box_and_bottle.jpg,CC BY-SA 4.0,Ryan Visima – Your Favourite Photographer,Britney Spears,Believe,test,24
+w0045,File:Coco de Chanel.jpg,https://commons.wikimedia.org/wiki/File:Coco_de_Chanel.jpg,CC BY-SA 2.0,Paeonia,Chanel,Coco Eau De Toilette,test,30
+w0070,File:Emporio Armani Diamonds.JPG,https://commons.wikimedia.org/wiki/File:Emporio_Armani_Diamonds.JPG,CC BY-SA 3.0,Cpalaci1,Emporio Armani,Diamonds,test,34
+w0082,File:Derby guerlain.jpg,https://commons.wikimedia.org/wiki/File:Derby_guerlain.jpg,CC BY-SA 4.0,Agostinoroberto,Guerlain,Derby,test,32
+w0095,File:Jo Malone London Silver Birch and Lavender Cologne.jpg,https://commons.wikimedia.org/wiki/File:Jo_Malone_London_Silver_Birch_and_Lavender_Cologne.jpg,CC BY 4.0,Noon Plastic,Jo Malone London,Silver Birch & Lavender,test,28
+w0143,File:Ralph Lauren POLO Cologne.JPG,https://commons.wikimedia.org/wiki/File:Ralph_Lauren_POLO_Cologne.JPG,CC BY 3.0,Dwight Burdette,Ralph Lauren,Polo Cologne Intense,test,34
