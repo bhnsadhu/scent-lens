@@ -26,3 +26,10 @@ ScentLens is complete. Next, outside this repo: Accord, which calls the recogniz
 ## Next action
 
 None. Redeploy the demo after changes: `.venv/bin/python scripts/build_space.py bhnsadhu && ~/.local/bin/modal deploy deploy/modal_app.py`.
+
+Tools: ~/.local/bin/uv, ~/.local/bin/gh and ~/.local/bin/modal (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1, NO_ALBUMENTATIONS_UPDATE=1, and HF_HUB_OFFLINE=1 (weights cached; without it the hub check can stall a run for minutes).
+
+## Seeds
+
+- 20261015: synthetic query sample (results/synthetic_query_ids.csv), augmentation seeds (20261015 + 100 * query_index + condition index), bootstrap, gallery sweep draws (20261015 + size), split manifest.
+- 7: pandas random_state for the 50 image spot check.
