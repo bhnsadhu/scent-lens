@@ -4,7 +4,7 @@ Each variant changes how a cropped query is scored. The calibrator and
 threshold are refitted on development photos only, exactly as rules 5 and 6,
 then applied unchanged to the test photos and to the web set. Test numbers
 were measured after the test split had been seen once, so they are optimistic.
-The web set (data/real/web, Wikimedia Commons photos of products that were
+The web set (data/real/web, Wikimedia Commons and Flickr photos of products that were
 never trained on, tested, or used for any choice; scripts/ingest_web.py) is
 the fresh check. Writes results/v2_results.json and results/v2_results.md.
 
@@ -205,7 +205,7 @@ def report(results: list[dict], n_web_products: int) -> str:
     L = ["# Version 2 experiments (after the test)", "",
          "Run after the one time test of version 1 (results/test_results.md). Every choice (rotation set, text weight, guard share, calibrator, threshold) was made on development photos only; the calibrator and threshold were refitted on development photos exactly as rules 5 and 6 and applied unchanged elsewhere.", "",
          "* Test: the version 1 test photos. These bottles were seen before the changes were made, so these columns are optimistic.",
-         f"* Web: a fresh set of {results[0]['web']['photos']} Wikimedia Commons photos of {n_web_products} catalog products that were never in the fine tune training sample, the bottle list, or any choice (sources and licenses in results/web_sources.csv). Most are product style shots, so they are easier than phone photos; none has a not in catalog bottle, so abstention there only measures wrong answers on matched products.", "",
+         f"* Web: a fresh set of {results[0]['web']['photos']} openly licensed Wikimedia Commons and Flickr photos of {n_web_products} catalog products that were never in the fine tune training sample, the bottle list, or any choice (sources and licenses in results/web_sources.csv). Most are product style shots, so they are easier than phone photos; none has a not in catalog bottle, so abstention there only measures wrong answers on matched products.", "",
          "| Variant | Dev top 1 | Test top 1 | Test phone top 1 | Test front phone top 1 | Web top 1 [95% interval] | Web top 5 |", "|---|---|---|---|---|---|---|"]
     for r in results:
         t, w = r["test"], r["web"]

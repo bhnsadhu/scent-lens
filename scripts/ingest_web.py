@@ -1,4 +1,4 @@
-"""Ingest the Wikimedia Commons web set (version 2 fresh test).
+"""Ingest the web set (version 2 fresh test): Wikimedia Commons and Flickr photos.
 
 Reads data/real/web/manifest.csv (one verified photo per row: source page,
 license, author, catalog product, and whether it is used), strips metadata
