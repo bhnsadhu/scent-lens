@@ -17,7 +17,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 8: final evaluation, once (2026-10-29, results/test_results.md: final system 66.7 strict top 1, H2 H4 H5 H7 supported, H1 inconclusive, H3 not tested, H6 refuted at 83.0 selective accuracy)
 - [x] Version 2 after the test (results/v2_results.md: rotations, label reading, answer guard and clear label rule; web set of 42 openly licensed photos)
 - [ ] Phase 9: demo. Done: export (scripts/export_model.py), recognizer (scent_lens.recognize, docs/integration.md), end to end check (results/recognizer_*.md), RapidOCR for non macOS hosts, Gradio app (app/app.py, API endpoint identify), Space bundler (scripts/build_space.py). Waiting on STOP E and STOP F.
-- [ ] Phase 10: readme and finish
+- [ ] Phase 10: readme written (README.md); finish after the Space is live (verify a sample on the Space, CPU latency there, push to GitHub with approval)
 
 ## Current stop
 
