@@ -32,6 +32,7 @@ def backbone_of(method: str) -> str:
 
 
 def gallery_for(method: str, gal: pd.DataFrame) -> Gallery:
+    method = method.removesuffix("_crop")  # cropped queries search the same gallery
     if method in TEXT_METHODS:
         d = ROOT / "artifacts" / "emb" / backbone_of(method)
         return Gallery(np.load(d / "text.npy"), (d / "text_products.txt").read_text().split())

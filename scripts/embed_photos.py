@@ -28,9 +28,14 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--backbones", default="dinov2,siglip2,clip")
     ap.add_argument("--finetuned", default=None, help="path to a fine tuned checkpoint directory")
+    ap.add_argument("--crop", action="store_true", help="embed data/real/processed_crop and save as <name>_crop")
     args = ap.parse_args()
     photos = pd.read_csv(ROOT / "data" / "real" / "photos.csv", dtype=str)
-    imgs = [Image.open(ROOT / p).convert("RGB") for p in photos.path]
+    if args.crop:
+        paths = [ROOT / "data" / "real" / "processed_crop" / f"{p}.jpg" for p in photos.photo_id]
+    else:
+        paths = [ROOT / p for p in photos.path]
+    imgs = [Image.open(p).convert("RGB") for p in paths]
     OUT.mkdir(parents=True, exist_ok=True)
     jobs = [(b, None) for b in args.backbones.split(",") if b]
     if args.finetuned:
@@ -43,6 +48,7 @@ def main() -> int:
         else:
             enc = load_encoder(name)
         emb = np.concatenate([enc.encode_images(imgs[i : i + 32]) for i in range(0, len(imgs), 32)])
+        name = f"{name}_crop" if args.crop else name
         np.save(OUT / f"{name}.npy", emb.astype(np.float32))
         (OUT / f"{name}_ids.txt").write_text("\n".join(photos.photo_id) + "\n")
         print(f"{name}: {emb.shape}", flush=True)

@@ -9,18 +9,18 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - [x] Phase 0: preflight and setup (STOP A cleared 2026-10-15; venv, pins, layout, 36 unit tests, CI)
 - [x] Phase 1: data (download rev 9d2db452, inventory, cleaning to 25,748 images / 24,642 products, data_notes.md, spot check 50)
 - [x] Phase 2: embeddings and synthetic baselines (results/synthetic_eval.md, charts in results/)
-- [x] Phase 3: bottle coverage (63 bottles: 48 matched, 15 absent; results/bottle_manifest.csv)
+- [x] Phase 3: bottle coverage (63 bottles: 49 matched, 14 absent; results/bottle_manifest.csv)
 - [x] Phase 4: preregistration (frozen by test), photo protocol, shot list, labels template
 - [x] Phase 5: ingest and splits (185 images of 55 bottles: 141 phone photos in two rounds plus 44 online product images; split 27 dev / 28 test bottles, results/split_manifest.csv, extended for the second round; deviations noted in the preregistration 2026-10-28)
-- [x] Phase 6: fine tune (grid of 4 runs, results/runs.jsonl; on the enlarged development pool rule 4 picks lr 1e-4 strength 1.0 epoch 1: proxy top 1 48.0 vs frozen 37.3)
-- [x] Phase 7: confidence and abstention (isotonic calibrator; no threshold qualifies, 22 confident correct photos of the 29 needed, so the system always abstains by rule 6; results/calibrator.json)
+- [x] Phase 6: fine tune (grid of 4 runs, results/runs.jsonl; rule 4 picks lr 1e-4 strength 1.0 epoch 1: proxy top 1 48.1 vs frozen 34.6); rule 7 adds a bottle crop of queries (53.1 vs 34.6 full gallery)
+- [x] Phase 7: confidence and abstention (logistic calibrator, threshold 0.641: answers 33 of 101 development photos, all correct, abstains on every absent bottle photo; results/calibrator.json)
 - [ ] Phase 8: final evaluation, once
 - [ ] Phase 9: demo (STOP E, STOP F)
 - [ ] Phase 10: readme and finish
 
 ## Current stop
 
-Before phase 8: the one time test evaluation (phase 8) waits for the user's go ahead. All development pool decisions (rules 1 to 6) are recorded in docs/decisions.md.
+Before phase 8: the one time test evaluation (phase 8) waits for the user's go ahead. All development pool decisions (rules 1 to 7) are recorded in docs/decisions.md.
 
 ## Next action
 

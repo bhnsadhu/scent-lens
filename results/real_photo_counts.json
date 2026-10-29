@@ -1,8 +1,8 @@
 {
   "photos": 185,
   "bottles_with_photos": 55,
-  "matched_bottles_with_photos": 41,
-  "absent_bottles_with_photos": 14,
+  "matched_bottles_with_photos": 42,
+  "absent_bottles_with_photos": 13,
   "photos_by_condition": {
     "clean": 53,
     "cluttered": 53,
