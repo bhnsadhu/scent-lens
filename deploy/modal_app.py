@@ -1,11 +1,20 @@
 """Serve the ScentLens demo on Modal (free Starter credits), CPU only.
 
-    .venv/bin/python scripts/build_space.py bhnsadhu   # writes artifacts/space
-    modal deploy deploy/modal_app.py
+Every push to main that touches the demo deploys it (.github/workflows/deploy.yml).
+By hand, from the repo:
 
-The bundle in artifacts/space (app, scent_lens modules, export, approved
-samples, results page) is the same one built for a Hugging Face Space. The
-OWLv2 detector weights are baked into the image so a cold start downloads
+    .venv/bin/python scripts/build_space.py bhnsadhu   # writes artifacts/space
+    .venv/bin/python -m modal deploy deploy/modal_app.py
+
+The code comes from the bundle in artifacts/space (app, scent_lens modules,
+results page), the same one built for a Hugging Face Space. The model export
+and the approved sample photos are not in git, so they live in the Modal
+Volume "scent-lens-data" instead, and the image leaves the bundle's copies out.
+After a new export or new samples, upload them again:
+
+    scripts/upload_demo_data.sh
+
+The OWLv2 detector weights are baked into the image so a cold start downloads
 nothing. One container at most, shut down after 5 idle minutes, which keeps
 the cost to cents per hour of use.
 
@@ -23,6 +32,7 @@ import modal
 BUNDLE = Path(__file__).resolve().parents[1] / "artifacts" / "space"
 BRAND = Path(__file__).resolve().parent / "brand"  # mark, icons and link-preview image
 HF_HOME = "/cache/hf"
+DATA = modal.Volume.from_name("scent-lens-data")  # export/ and samples/, see scripts/upload_demo_data.sh
 
 
 def _fetch_detector() -> None:
@@ -40,15 +50,15 @@ image = (
     .env({"HF_HOME": HF_HOME, "SCENTLENS_READER": "rapidocr", "GRADIO_ANALYTICS_ENABLED": "False",
           "OMP_NUM_THREADS": "8", "MKL_NUM_THREADS": "8"})  # match the 4 physical cores; the host has many more
     .run_function(_fetch_detector)
-    .env({"HF_HUB_OFFLINE": "1"})
-    .add_local_dir(BUNDLE, "/app")
+    .env({"HF_HUB_OFFLINE": "1", "SCENTLENS_EXPORT": "/data/export", "SCENTLENS_SAMPLES": "/data/samples"})
+    .add_local_dir(BUNDLE, "/app", ignore=["export", "samples"])  # those come from the volume
     .add_local_dir(BRAND, "/brand")
 )
 
 app = modal.App("scent-lens", image=image)
 
 
-@app.function(cpu=4.0, memory=4096, max_containers=1, scaledown_window=300, timeout=600)
+@app.function(cpu=4.0, memory=4096, max_containers=1, scaledown_window=300, timeout=600, volumes={"/data": DATA})
 @modal.concurrent(max_inputs=4)
 @modal.asgi_app()
 def web():
@@ -67,7 +77,7 @@ def web():
     api.mount("/brand", StaticFiles(directory="/brand"), name="brand")
     api.middleware("http")(_brand_page)
     return mount_gradio_app(api, demo.demo, path="/", max_file_size=demo.MAX_UPLOAD,
-                            allowed_paths=["/app/samples"], favicon_path="/brand/icon-512.png",
+                            allowed_paths=["/data/samples"], favicon_path="/brand/icon-512.png",
                             theme=demo.THEME, css=demo.CSS, head=demo.HEAD, footer_links=["api", "settings"])
 
 

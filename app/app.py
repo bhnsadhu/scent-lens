@@ -24,7 +24,7 @@ from scent_lens.photos import clean_pil  # noqa: E402
 from scent_lens.recognize import Recognizer  # noqa: E402
 
 EXPORT = Path(os.environ.get("SCENTLENS_EXPORT", HERE / "export" if (HERE / "export").exists() else ROOT / "artifacts" / "export"))
-SAMPLES = sorted((HERE / "samples").glob("*.jpg"))
+SAMPLES = sorted(Path(os.environ.get("SCENTLENS_SAMPLES", HERE / "samples")).glob("*.jpg"))
 MAX_UPLOAD = "10mb"
 ADVICE = ("**Tips for a better photo:** show the front label straight on, fill most of the frame with the bottle, "
           "avoid glare from lights or windows, and keep other bottles out of the shot.")

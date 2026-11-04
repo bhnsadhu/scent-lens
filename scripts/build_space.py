@@ -50,7 +50,11 @@ This Space holds the merged fine tuned model, float16 catalog image embeddings a
 
 
 def main() -> int:
-    github = sys.argv[1] if len(sys.argv) > 1 else "<user>"
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    github = args[0] if args else "<user>"
+    # --code-only: everything that lives in git, without the export and sample photos (which do not).
+    # The Modal deploy in GitHub Actions uses it; those two folders live in a Modal Volume there.
+    code_only = "--code-only" in sys.argv
     if OUT.exists():
         shutil.rmtree(OUT)
     (OUT / "src" / "scent_lens").mkdir(parents=True)
@@ -59,10 +63,11 @@ def main() -> int:
     shutil.copy(ROOT / "app" / "app.py", OUT / "app.py")
     shutil.copy(ROOT / "app" / "results.md", OUT / "results.md")
     shutil.copy(ROOT / "app" / "mark.svg", OUT / "mark.svg")
-    shutil.copytree(ROOT / "artifacts" / "export", OUT / "export")
     approved = ROOT / "app" / "samples.txt"
-    ids = [s for s in approved.read_text().split() if s] if approved.exists() else []
-    (OUT / "samples").mkdir()
+    ids = [s for s in approved.read_text().split() if s] if approved.exists() and not code_only else []
+    if not code_only:
+        shutil.copytree(ROOT / "artifacts" / "export", OUT / "export")
+        (OUT / "samples").mkdir()
     for i, pid in enumerate(ids, 1):
         shutil.copy(ROOT / "data" / "real" / "processed" / f"{pid}.jpg", OUT / "samples" / f"sample_{i}.jpg")
     (OUT / "requirements.txt").write_text(REQUIREMENTS)

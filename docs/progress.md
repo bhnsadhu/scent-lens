@@ -25,7 +25,7 @@ ScentLens is complete. Next, outside this repo: Accord, which calls the recogniz
 
 ## Next action
 
-None. Redeploy the demo after changes: `.venv/bin/python scripts/build_space.py bhnsadhu && ~/.local/bin/modal deploy deploy/modal_app.py`.
+None. The demo redeploys itself on every push to main that changes it (.github/workflows/deploy.yml, using the MODAL_TOKEN_ID and MODAL_TOKEN_SECRET repository secrets). The model export and sample photos are not in git: after a new export or new samples, run `scripts/upload_demo_data.sh` to put them in the Modal Volume `scent-lens-data`. By hand: `.venv/bin/python scripts/build_space.py bhnsadhu && .venv/bin/python -m modal deploy deploy/modal_app.py`.
 
 Tools: ~/.local/bin/uv, ~/.local/bin/gh and ~/.local/bin/modal (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1, NO_ALBUMENTATIONS_UPDATE=1, and HF_HUB_OFFLINE=1 (weights cached; without it the hub check can stall a run for minutes).
 
