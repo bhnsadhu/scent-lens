@@ -38,6 +38,9 @@ rec = Recognizer(EXPORT, reader=os.environ.get("SCENTLENS_READER"))  # RapidOCR 
 # Accord's world: a silver evaluation bench, ink type, Schibsted Grotesk with Geist Mono for
 # figures. ScentLens is the lens behind Accord's scanner, so the two read as one family.
 INK, INK_2, BENCH, LINE = "#171b1f", "#4a5058", "#f0f1f3", "#d9dce1"
+# The same bench after dark: Gradio follows the viewer's system setting (or its Settings
+# panel), so every light colour above has a dark twin, or text vanishes into the background.
+INK_D, INK_2_D, BENCH_D, BLOCK_D, LINE_D = "#f0f1f3", "#a9b0b8", "#121518", "#1b1f23", "#30353c"
 THEME = gr.themes.Base(
     font=[gr.themes.GoogleFont("Schibsted Grotesk"), "system-ui", "sans-serif"],
     font_mono=[gr.themes.GoogleFont("Geist Mono"), "ui-monospace", "monospace"],
@@ -50,24 +53,38 @@ THEME = gr.themes.Base(
     button_primary_text_color="#f8f9fa", button_primary_border_color=INK,
     link_text_color=INK, link_text_color_hover=INK, link_text_color_visited=INK,
     input_background_fill="#ffffff", background_fill_secondary="#f7f8f9",
+    body_background_fill_dark=BENCH_D, body_text_color_dark=INK_D, body_text_color_subdued_dark=INK_2_D,
+    block_background_fill_dark=BLOCK_D, block_border_color_dark=LINE_D, block_label_text_color_dark=INK_2_D,
+    block_title_text_color_dark=INK_D, border_color_primary_dark=LINE_D, color_accent_soft_dark="#2a2f35",
+    button_primary_background_fill_dark=INK_D, button_primary_background_fill_hover_dark="#d9dce1",
+    button_primary_text_color_dark=INK, button_primary_border_color_dark=INK_D,
+    link_text_color_dark=INK_D, link_text_color_hover_dark=INK_D, link_text_color_visited_dark=INK_D,
+    input_background_fill_dark=BLOCK_D, background_fill_secondary_dark="#171a1e",
 )
 CSS = """
+/* Colours come from variables so the header, pills and tabs follow Gradio's light/dark switch
+   (it puts .dark on <body>), whatever the system setting says. */
+.gradio-container { --sl-ink: #171b1f; --sl-ink-2: #4a5058; --sl-on-ink: #f8f9fa; --sl-rule: #b9bec5; }
+.dark .gradio-container, .gradio-container.dark { --sl-ink: #f0f1f3; --sl-ink-2: #a9b0b8; --sl-on-ink: #171b1f; --sl-rule: #5a616a;
+  --color-accent: #f0f1f3; }  /* the theme has no dark accent setting; this lights the selected upload icon */
 /* The header sits flush with the blocks below it: Gradio's HTML block padding is removed,
    the mark's top lines up with the title's cap height, and every line of text shares one edge. */
 .sl-header, .sl-header > div { padding: 0 !important; }
 .sl-head { display: flex; align-items: flex-start; gap: 18px; margin: 4px 0 6px; }
 .sl-head svg { width: 56px; height: 56px; flex: none; margin-top: 2px; }
+.sl-head svg .i { fill: var(--sl-ink) !important; }
+.sl-head svg .s { stroke: var(--sl-ink) !important; }
 .sl-head__text p { margin: 4px 0 0; }
-.sl-head h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; font-weight: 600; }
-.sl-head p { color: #4a5058; font-size: 15px; text-wrap: pretty; }
-.sl-head .sl-links { display: flex; flex-wrap: wrap; gap: 4px 22px; margin-top: 10px; font: 500 12px/1.6 'Geist Mono', ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: #4a5058; }
+.sl-head h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; font-weight: 600; color: var(--sl-ink); }
+.sl-head p { color: var(--sl-ink-2); font-size: 15px; text-wrap: pretty; }
+.sl-head .sl-links { display: flex; flex-wrap: wrap; gap: 4px 22px; margin-top: 10px; font: 500 12px/1.6 'Geist Mono', ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--sl-ink-2); }
 .sl-links span { white-space: nowrap; }
-.sl-links a { color: #171b1f !important; text-decoration: none !important; background: none !important; padding: 0 !important;
-  border-radius: 0 !important; border-bottom: 1px solid #b9bec5; }
-.sl-links a:hover { border-color: #171b1f; }
+.sl-links a { color: var(--sl-ink) !important; text-decoration: none !important; background: none !important; padding: 0 !important;
+  border-radius: 0 !important; border-bottom: 1px solid var(--sl-rule); }
+.sl-links a:hover { border-color: var(--sl-ink); }
 .sl-pill { display: inline-block; font: 500 12px/1 'Geist Mono', ui-monospace, monospace; letter-spacing: .12em;
-  text-transform: uppercase; padding: 9px 13px; border-radius: 999px; background: #171b1f; color: #f8f9fa; margin-bottom: 4px; }
-.sl-pill--unsure { background: transparent; color: #171b1f; box-shadow: inset 0 0 0 1px #171b1f; }
+  text-transform: uppercase; padding: 9px 13px; border-radius: 999px; background: var(--sl-ink); color: var(--sl-on-ink); margin-bottom: 4px; }
+.sl-pill--unsure { background: transparent; color: var(--sl-ink); box-shadow: inset 0 0 0 1px var(--sl-ink); }
 /* Gradio draws its image toolbar icons at 20px; WCAG 2.2 asks for 24. */
 .icon-button-wrapper .icon-button, .icon-button-wrapper .download-link, button[aria-label="Download"] {
   min-width: 24px !important; min-height: 24px !important; display: inline-flex; align-items: center; justify-content: center; }
@@ -77,7 +94,8 @@ CSS = """
   .sl-head h1 { font-size: 28px; }
   .sl-head .sl-links { gap: 2px 18px; }
 }
-.tab-nav button.selected, button[role="tab"][aria-selected="true"] { color: #171b1f !important; border-color: #171b1f !important; }
+button[role="tab"] { color: var(--sl-ink-2) !important; }
+.tab-nav button.selected, button[role="tab"][aria-selected="true"] { color: var(--sl-ink) !important; border-color: var(--sl-ink) !important; }
 """
 # Gradio renders the sample photos as unnamed buttons; name each one for screen readers.
 HEAD = """<script>

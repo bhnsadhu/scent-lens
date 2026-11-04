@@ -77,7 +77,8 @@ DESCRIPTION = ("Names a fragrance from one photo of its bottle across 24,642 fra
                "or says it isn't sure. The bottle scanner behind Accord.")
 HEAD = f"""<title>ScentLens · identify a fragrance from a photo</title>
 <meta name="description" content="{DESCRIPTION}">
-<meta name="theme-color" content="#f0f1f3">
+<meta name="theme-color" content="#f0f1f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121518" media="(prefers-color-scheme: dark)">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{SITE}/">
 <meta property="og:site_name" content="ScentLens">
