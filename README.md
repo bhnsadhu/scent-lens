@@ -1,10 +1,16 @@
+<p align="center"><img src="deploy/brand/apple-touch-icon.png" width="96" height="96" alt="ScentLens's mark: a perfume bottle inside four viewfinder corners"></p>
+
 # ScentLens
 
-ScentLens identifies a fragrance from a photo of its bottle by searching **24,642 catalog fragrances**, and it says "not sure" when it cannot tell.
+**Names a fragrance from one photo of its bottle, or says it isn't sure.** It searches **24,642 catalog fragrances** by image and by the words on the label.
 
-**Demo:** [bhnsadhu--scent-lens-web.us-east.modal.run](https://bhnsadhu--scent-lens-web.us-east.modal.run) (first load after idle about 45 s) · **Use it from another app:** [docs/integration.md](docs/integration.md)
+**[Try the demo → scentlens.bhanusadhu.com](https://scentlens.bhanusadhu.com)** · the first load after idle takes about 45 s · **Use it from another app:** [docs/integration.md](docs/integration.md)
 
-**In production:** ScentLens is the bottle scanner inside [Accord](https://accord.bhanusadhu.com) ([repo](https://github.com/bhnsadhu/accord)), a fragrance discovery app. Accord sends the photo to the `/identify` API, ScentLens answers or abstains, and Accord shows a match or unconfirmed candidates.
+**In production:** ScentLens is the bottle scanner inside [Accord](https://accord.bhanusadhu.com), a fragrance discovery app. Accord sends the photo to the `/identify` API, ScentLens answers or abstains, and Accord shows a match or unconfirmed candidates.
+
+## The problem
+
+I collect fragrances, and the first question about any unfamiliar bottle is simple: what is it? A photo should answer it, but catalog images are clean studio shots while real photos are cluttered, angled and dim, and a confident wrong answer is worse than none. I built ScentLens to find out how far a model can close that gap, and to ship it as the scanner inside Accord.
 
 The research question, set before any real photo was scored ([preregistration](docs/experiments/preregistration.md)): how much does recognition fall from catalog shots to real phone photos, which conditions break it, and can the system tell when it is wrong?
 
@@ -67,9 +73,9 @@ flowchart LR
 
 ## Data
 
-- **Catalog:** [doevent/perfume](https://huggingface.co/datasets/doevent/perfume) at revision 9d2db452, cleaned to 25,748 images of 24,642 products from 1,255 brands ([data_notes.md](docs/data_notes.md)). A product is a brand plus a normalized name, so concentrations of one fragrance count as one product.
+- **Catalog:** the Hugging Face dataset doevent/perfume at revision 9d2db452, cleaned to 25,748 images of 24,642 products from 1,255 brands ([data_notes.md](docs/data_notes.md)). A product is a brand plus a normalized name, so concentrations of one fragrance count as one product.
 - **Real photos:**
-  - 63 bottles owned by the author and friends: 49 in the catalog and 14 confirmed absent.
+  - 63 bottles owned by me and my friends: 49 in the catalog and 14 confirmed absent.
   - 141 phone photos plus 44 audited online product images, taken under a fixed [protocol](docs/photo_protocol.md) (clean, angled, cluttered, partial).
   - Split by bottle into a development pool (27 bottles, 101 photos, 5 folds) and a test split (28 bottles, 84 photos).
 - **Web set:** 42 openly licensed photos (Wikimedia Commons, and Flickr found through Openverse) of 32 catalog products. None was in training or on the bottle list, and none was used for any choice. Each was checked by eye, and none is a near copy of its own catalog images (the smallest perceptual hash distance is 14). Sources and licenses are in [web_sources.csv](results/web_sources.csv).
@@ -184,7 +190,7 @@ rec(Image.open("bottle.jpg")).to_dict()
 
 The hosted demo exposes the same call as an API endpoint, `/identify`. [docs/integration.md](docs/integration.md) covers the fields, the reasons for abstaining, the stable product ids and the HTTP client.
 
-## Reproduce
+## Run it locally
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt   # exact versions: requirements-lock.txt
@@ -204,7 +210,7 @@ The real photos are private, so the photo evaluations can't be rerun from this r
 
 - Rights to the doevent/perfume catalog images are unverified. No catalog image appears in this repo, its charts or the demo. The demo shows names only.
 - This repo contains no photos.
-- The hosted demo ([deploy/modal_app.py](deploy/modal_app.py), Modal free tier) holds the merged model, float16 catalog embeddings and product metadata derived from the dataset, plus six of the author's own photos shared with consent. It shuts down when idle, so the first request can take about a minute.
+- The hosted demo ([deploy/modal_app.py](deploy/modal_app.py), Modal free tier) holds the merged model, float16 catalog embeddings and product metadata derived from the dataset, plus six of my own photos. It shuts down when idle, so the first request can take about a minute.
 - Web test photos stay local. Their licenses (CC BY, CC BY-SA, some non-commercial or no-derivatives) are listed in [web_sources.csv](results/web_sources.csv).
 - Base models: SigLIP 2 and OWLv2 (Google), DINOv2 (Meta), CLIP (LAION OpenCLIP). OCR: macOS Vision and RapidOCR.
 
@@ -215,3 +221,7 @@ The catalog to real gap studied here is the setting of Zhang, Mazumder and Lomak
 ## License
 
 MIT for the code. Model weights follow their base models' licenses.
+
+---
+
+Designed and built by me, [Bhanu Sadhu](https://bhanusadhu.com).
