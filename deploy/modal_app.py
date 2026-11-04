@@ -8,6 +8,10 @@ samples, results page) is the same one built for a Hugging Face Space. The
 OWLv2 detector weights are baked into the image so a cold start downloads
 nothing. One container at most, shut down after 5 idle minutes, which keeps
 the cost to cents per hour of use.
+
+A redeploy replaces the running container: calls in flight on the old one are
+cancelled, and the new one needs about a minute to load before /identify
+answers again, so Accord's scanner can time out briefly. Deploy when it's quiet.
 """
 
 from __future__ import annotations

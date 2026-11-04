@@ -75,7 +75,9 @@ def identify_api(image: FileData) -> dict:
 
 with gr.Blocks(title="ScentLens") as demo:
     gr.Markdown("# ScentLens\nIdentify a fragrance from a photo of its bottle, across 24,642 catalog fragrances. "
-                "When it is not sure, it says so.")
+                "When it is not sure, it says so.\n\n"
+                "[Repository](https://github.com/bhnsadhu/scent-lens) · "
+                "The bottle scanner in [Accord](https://accord.bhanusadhu.com)")
     with gr.Tab("Identify"):
         with gr.Row():
             with gr.Column():
