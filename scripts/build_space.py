@@ -58,6 +58,7 @@ def main() -> int:
         shutil.copy(ROOT / "src" / "scent_lens" / f"{m}.py", OUT / "src" / "scent_lens" / f"{m}.py")
     shutil.copy(ROOT / "app" / "app.py", OUT / "app.py")
     shutil.copy(ROOT / "app" / "results.md", OUT / "results.md")
+    shutil.copy(ROOT / "app" / "mark.svg", OUT / "mark.svg")
     shutil.copytree(ROOT / "artifacts" / "export", OUT / "export")
     approved = ROOT / "app" / "samples.txt"
     ids = [s for s in approved.read_text().split() if s] if approved.exists() else []

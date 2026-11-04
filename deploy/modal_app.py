@@ -67,10 +67,12 @@ def web():
     api.mount("/brand", StaticFiles(directory="/brand"), name="brand")
     api.middleware("http")(_brand_page)
     return mount_gradio_app(api, demo.demo, path="/", max_file_size=demo.MAX_UPLOAD,
-                            allowed_paths=["/app/samples"], favicon_path="/brand/icon-512.png")
+                            allowed_paths=["/app/samples"], favicon_path="/brand/icon-512.png",
+                            theme=demo.THEME, css=demo.CSS, head=demo.HEAD, footer_links=["api", "settings"])
 
 
-SITE = "https://bhnsadhu--scent-lens-web.us-east.modal.run"
+# The public address: a Vercel rewrite (deploy/domain) serves this app under it.
+SITE = "https://scentlens.bhanusadhu.com"
 DESCRIPTION = ("Names a fragrance from one photo of its bottle across 24,642 fragrances, "
                "or says it isn't sure. The bottle scanner behind Accord.")
 HEAD = f"""<title>ScentLens · identify a fragrance from a photo</title>
