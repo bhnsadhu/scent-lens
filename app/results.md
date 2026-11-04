@@ -2,7 +2,7 @@
 
 Real photos, not catalog shots.
 
-- 63 bottles owned by the author and friends, photographed with phones and paired with online product photos.
+- 63 bottles owned by me and my friends, photographed with phones and paired with online product photos.
 - These were split by bottle into a development pool (101 photos) used for every choice, and a test pool (84 photos of 28 bottles, 7 of them not in the catalog) that was scored once.
 - A fresh web set of 42 openly licensed photos of 32 fragrances that were never used in training or for any choice.
 
