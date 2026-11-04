@@ -4,6 +4,8 @@ ScentLens identifies a fragrance from a photo of its bottle by searching **24,64
 
 **Demo:** [bhnsadhu--scent-lens-web.us-east.modal.run](https://bhnsadhu--scent-lens-web.us-east.modal.run) (first load after idle about 45 s) · **Use it from another app:** [docs/integration.md](docs/integration.md)
 
+**In production:** ScentLens is the bottle scanner inside [Accord](https://accord.bhanusadhu.com) ([repo](https://github.com/bhnsadhu/accord)), a fragrance discovery app. Accord sends the photo to the `/identify` API, ScentLens answers or abstains, and Accord shows a match or unconfirmed candidates.
+
 The research question, set before any real photo was scored ([preregistration](docs/experiments/preregistration.md)): how much does recognition fall from catalog shots to real phone photos, which conditions break it, and can the system tell when it is wrong?
 
 ## Headline
@@ -49,6 +51,19 @@ flowchart LR
   - A guard refuses when most of the words read do not belong to the guess.
   - A clear label rule answers when every brand and name word of exactly one product was read.
 - **Latency:** 1.2 s per photo on an Apple M series GPU, and 2.5 s median on its CPU ([recognizer_rapidocr.md](results/recognizer_rapidocr.md)). The hosted demo takes about 6 s on 4 cloud CPU cores; the bottle crop is 5 s of that (the result's `timings` field breaks it down).
+
+## Design decisions
+
+| Decision | Why, and what it costs |
+|---|---|
+| **Retrieval, not classification** | Each catalog image is embedded once and a photo is matched by nearest neighbor, so a new fragrance needs one reference image and no retraining. The cost: look-alike bottles in one product line compete directly. |
+| **Abstaining is part of the product** | In an app, a confident wrong name costs more trust than "not sure, try the front label". The answer rules trade coverage for precision: version 2 answers about a third of fresh photos and was right on every one. |
+| **Bottle crop before matching** | Real photos are cluttered and the bottle is small. A zero-shot OWLv2 crop added 18 points of top 1 on top of fine tuning, more than any other single step. |
+| **Label reading as a second signal** | Bottles of one brand often share a shape. OCR of the label separates siblings the image model confuses, and a guard refuses when the words read do not belong to the guess. |
+| **No real photo in training** | Fine tuning used augmented catalog images only, and every product on the photo list was excluded, so the measured gain is conservative rather than leaked. |
+| **The test split is scored once** | The script refuses a second run or a dirty tree, so no choice could be tuned to the test photos. Later improvements are reported on a fresh web set. |
+| **The careful variant ships** | Reading the label at full resolution added 1.5 test points but more wrong answers, so the conservative version was kept. |
+| **Free to run** | The demo and API run on Modal's free tier on CPU, about 6 seconds a photo warm. Accord caps scans to a $1 a month budget. |
 
 ## Data
 
@@ -149,6 +164,11 @@ Version 2's answer rules address H6. That is a post hoc result, not a preregiste
 - **Label noise.** A bottle can differ from its catalog picture across release years.
 
 Not measured: glare and dim light on real photos, photos with several bottles, other photographers or homes, and any user study.
+
+## Quality
+
+- **56 pytest tests** cover matching, calibration, cropping, metrics, evaluation and the test lock. GitHub Actions runs the torch-free subset on every push; tests marked `torch` need model weights and run locally.
+- Every decision is logged with its reason in [docs/decisions.md](docs/decisions.md), and the preregistration is frozen by a test.
 
 ## Use it
 
