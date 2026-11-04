@@ -58,7 +58,7 @@ flowchart LR
   - A clear label rule answers when every brand and name word of exactly one product was read.
 - **Latency:** 1.2 s per photo on an Apple M series GPU, and 2.5 s median on its CPU ([recognizer_rapidocr.md](results/recognizer_rapidocr.md)). The hosted demo takes about 6 s on 4 cloud CPU cores; the bottle crop is 5 s of that (the result's `timings` field breaks it down).
 
-## Design decisions
+## Product decisions
 
 | Decision | Why, and what it costs |
 |---|---|
