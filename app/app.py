@@ -106,8 +106,7 @@ MARK_SVG = MARK.read_text() if MARK.exists() else ""
 HEADER = f"""<div class="sl-head">{MARK_SVG}<div class="sl-head__text"><h1>ScentLens</h1>
 <p>Names a fragrance from one photo of its bottle, across 24,642 catalog fragrances. When it is not sure, it says so.</p>
 <p class="sl-links"><span>The bottle scanner in <a href="https://accord.bhanusadhu.com">Accord</a></span>
-<span><a href="https://github.com/bhnsadhu/scent-lens">Repository</a></span>
-<span>Designed and built by <a href="https://bhanusadhu.com">Bhanu Sadhu</a></span></p></div></div>"""
+<span><a href="https://github.com/bhnsadhu/scent-lens">Repository</a></span></p></div></div>"""
 WAITING = '<span class="sl-pill sl-pill--unsure">Waiting for a photo</span>\n\nUpload a bottle photo, or try one of the samples.'
 
 

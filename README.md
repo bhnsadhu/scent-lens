@@ -221,7 +221,3 @@ The catalog to real gap studied here is the setting of Zhang, Mazumder and Lomak
 ## License
 
 MIT for the code. Model weights follow their base models' licenses.
-
----
-
-Designed and built by me, [Bhanu Sadhu](https://bhanusadhu.com).
