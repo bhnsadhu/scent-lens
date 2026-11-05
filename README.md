@@ -6,6 +6,8 @@
 
 **[Try it → scentlens.bhanusadhu.com](https://scentlens.bhanusadhu.com)** · free; the first photo can take about 30 s while the server wakes up.
 
+![Demo: a sample photo of a bottle on a desk is identified as Viktor & Rolf Spicebomb Extrême with a calibrated confidence of 0.83 and the bottle boxed; a second photo, of a bottle that is not in the catalog, gets "Not sure" with the reason that the label text does not match the closest fragrance](docs/demo.gif)
+
 ## The problem
 
 You're holding a bottle at a friend's place or in a store, and you want to know exactly what it is. Image search returns similar-looking products, and the catalog's clean studio shots look nothing like a phone photo taken at an angle on a cluttered desk. Many look-alike flankers share a bottle shape, so a confident wrong answer is easy and costly: it sends you to the wrong fragrance.
