@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "https://bhnsadhu--scent-lens-web.us-east.modal.run/$1" }
+  ]
+}

@@ -6,6 +6,8 @@
 
 **[Try it → scentlens.bhanusadhu.com](https://scentlens.bhanusadhu.com)** · free; the first photo can take about 30 s while the server wakes up.
 
+> **The live demo is paused right now.** It runs on a free hosting tier and this month's free credit is used up, so it returns when the credit resets. Until then that address shows a status page with the recorded demo, and the same recording is just below.
+
 ![Demo: a sample photo of a bottle on a desk is identified as Viktor & Rolf Spicebomb Extrême with a calibrated confidence of 0.83 and the bottle boxed; a second photo, of a bottle that is not in the catalog, gets "Not sure" with the reason that the label text does not match the closest fragrance](docs/demo.gif)
 
 ## The problem
