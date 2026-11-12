@@ -2,37 +2,37 @@
 
 # ScentLens
 
-**Names a fragrance from one photo of its bottle, out of 24,642 catalog fragrances, and says so when it isn't sure.** It is the bottle scanner inside [Accord](https://accord.bhanusadhu.com).
+**Point it at a perfume bottle and it names the fragrance from 24,642 catalog products, or says "not sure."** It is the recognition engine behind the bottle scanner in [Accord](https://accord.bhanusadhu.com).
 
-**[Try it → scentlens.bhanusadhu.com](https://scentlens.bhanusadhu.com)** · free; the first photo can take about 30 s while the server wakes up.
+**[Demo → scentlens.bhanusadhu.com](https://scentlens.bhanusadhu.com)** · free
 
-> **The live demo is paused right now.** It runs on a free hosting tier and this month's free credit is used up, so it returns when the credit resets. Until then that address shows a status page with the recorded demo, and the same recording is just below.
+> **The live demo is paused for now.** It runs on a free Modal plan whose monthly credit is used up, so the address shows a status page until the credit resets. The recording below shows the same flow.
 
-![Demo: a sample photo of a bottle on a desk is identified as Viktor & Rolf Spicebomb Extrême with a calibrated confidence of 0.83 and the bottle boxed; a second photo, of a bottle that is not in the catalog, gets "Not sure" with the reason that the label text does not match the closest fragrance](docs/demo.gif)
+![A recorded demo: a sample photo of a bottle on a desk is boxed and identified as Viktor & Rolf Spicebomb Extrême with a calibrated confidence of 0.83, then a second sample bottle is run](docs/demo.gif)
 
 ## The problem
 
-You're holding a bottle at a friend's place or in a store, and you want to know exactly what it is. Image search returns similar-looking products, and the catalog's clean studio shots look nothing like a phone photo taken at an angle on a cluttered desk. Many look-alike flankers share a bottle shape, so a confident wrong answer is easy and costly: it sends you to the wrong fragrance.
+Catalog photos are clean studio shots, and a phone photo of a bottle on a cluttered desk looks nothing like them. Worse, many fragrances are flankers that share one bottle, so an image match can be confidently wrong, and a wrong name sends someone to the wrong fragrance.
 
-The goal: **name the bottle when the evidence is strong, and say "not sure" otherwise.**
+ScentLens aims to **name the bottle when the evidence is strong and say "not sure" otherwise.**
 
 ## How it works
 
-1. **Find the bottle.** An open-vocabulary detector (OWLv2) boxes "a perfume bottle", widens the box 15% and crops it. The crop is tried at three rotations.
-2. **Compare.** A SigLIP 2 image model, fine-tuned with LoRA on catalog images, embeds the crop and searches the embeddings of every catalog image.
-3. **Read the label.** OCR reads the words on the bottle, and a text-match score is added to the visual one. A clear-label rule answers when every brand and name word of a guess is read and no other product matches them all.
-4. **Decide or abstain.** A calibrated confidence decides whether to name it. Below the threshold it shows the top candidates and says it isn't sure.
+1. **Find and crop the bottle.** An open-vocabulary detector (OWLv2) boxes "a perfume bottle" and crops it. The crop is searched at three rotations.
+2. **Match the look.** A SigLIP 2 image model, fine-tuned with LoRA on catalog images, embeds the crop and compares it with every catalog image.
+3. **Read the label.** OCR reads the words on the bottle and adds a text-match score to the visual one, which separates look-alike siblings.
+4. **Answer or abstain.** A calibrated confidence decides. When the label clearly names one product, or confidence clears a threshold set by a statistical bound, it answers. Otherwise it shows candidates and says it is not sure.
 
 ## Product decisions
 
 | Decision | Trade-off |
 | --- | --- |
-| **Abstain instead of guessing** | It answers only about a third of photos. Answers it does give were right on 28 of 30 test photos and all 14 fresh web photos it answered, which matters more than coverage for a lookup tool. |
-| **Pre-register the evaluation, score the test once** | Slower, and some ideas were tested after the fact as a separate "version 2". But the headline number can't be tuned to the test photos. A CI test pins the pre-registration's hash so its original text can't be edited. |
-| **Search a gallery instead of training a classifier** | Near-identical sibling bottles stay hard to tell apart. In return a new fragrance needs only its catalog image embedded, with no retraining. |
-| **Swap the OCR engine without refitting** | The hosted version can't use macOS Vision, so it uses RapidOCR with every setting kept. Refitting for RapidOCR made guesses on look-alike siblings confident, so that refit was thrown away. |
-| **Free CPU hosting** | One container, shut down after a few idle minutes, so the first photo waits for a cold start. Hugging Face Spaces now needs a paid plan for this, so it runs on Modal's free tier instead. |
-| **Never loosen a safety filter after seeing results** | A strict explicit-image filter removed a whole product line (a stiletto-shaped bottle). Those products are simply absent rather than the filter being tuned to bring them back. |
+| **Abstain rather than guess** | On version 2 test photos it answers fewer than a third, but 22 of the 24 it answered were right. For a lookup tool a wrong name costs more than a missing one. |
+| **Write the hypotheses down first and score the test photos once** | Slower, and later ideas have to be reported as a separate "version 2" whose test numbers are optimistic. In return the headline number cannot have been tuned to the test photos. |
+| **Search a gallery instead of training a classifier** | Near-identical sibling bottles stay hard to separate. A new fragrance needs only its image embedded, with no retraining. |
+| **Swap the label reader instead of refitting around it** | The hosted version cannot use macOS Vision, so it uses RapidOCR. Refitting every setting for RapidOCR made guesses on look-alike siblings confident, so that refit was discarded and the reader was swapped with every other setting unchanged. |
+| **Free CPU hosting on Modal** | One container that sleeps when idle, so the first photo waits for a cold start, and a free monthly credit that can run out, as it has now. |
+| **Never loosen a safety filter after seeing results** | A strict explicit-image filter removed a whole product line, probably because of a stiletto-shaped bottle. Those products stay out of the catalog instead of the filter being tuned to bring them back. |
 
 ## Architecture
 
@@ -40,67 +40,67 @@ The goal: **name the bottle when the evidence is strong, and say "not sure" othe
 flowchart TD
   subgraph build["Build, offline"]
     direction LR
-    cat["Catalog cleaning<br/>26,283 rows to 24,642 products"] --> ft["LoRA fine-tune<br/>SigLIP 2"] --> emb["Gallery embeddings<br/>float16"]
+    cat["Clean catalog<br/>24,642 products"] --> ft["LoRA fine-tune<br/>SigLIP 2"] --> emb["Gallery<br/>embeddings"]
   end
   subgraph run["Recognize, per photo"]
     direction LR
-    crop["OWLv2 crop<br/>3 rotations"] --> sim["Visual search<br/>+ label OCR"] --> cal["Calibrated confidence<br/>answer or abstain"]
+    crop["OWLv2 crop<br/>3 rotations"] --> sim["Visual search<br/>and label OCR"] --> cal["Calibrated<br/>answer or abstain"]
   end
   subgraph serve["Serve"]
     direction LR
-    demo["Gradio demo<br/>on Modal CPU"] ~~~ acc["Accord<br/>via the identify API"]
+    demo["Gradio demo<br/>on Modal CPU"] ~~~ acc["Accord<br/>identify API"]
   end
   build --> run
   run --> serve
 ```
 
-Everything runs on CPU in production. The exported bundle is the fine-tuned model with its LoRA weights merged, the gallery embeddings and the calibrated settings, loaded by one Python class, `Recognizer`. Accord calls the same function over HTTP. → [docs/integration.md](docs/integration.md), [`src/scent_lens/recognize.py`](src/scent_lens/recognize.py)
+Everything runs on CPU in production. The exported bundle holds the fine-tuned model with its LoRA weights merged, the gallery embeddings and the calibrated settings, loaded by one Python class, `Recognizer`. Accord calls the same function over HTTP. See [docs/integration.md](docs/integration.md) and [src/scent_lens/recognize.py](src/scent_lens/recognize.py).
 
 ## Hard problems
 
-**Studio shots vs. real photos.** The frozen SigLIP 2 model read online product images well but got **0%** top-1 on cluttered phone photos during development. Fine-tuning helped, and cropping to the bottle first helped most: it lifted the fine-tuned model from **34.6% to 53.1%** top-1 on development photos. On the held-out test photos, top-1 went from **30.3%** frozen to **66.7%** for the final system. → [`src/scent_lens/finetune.py`](src/scent_lens/finetune.py), [`crop.py`](src/scent_lens/crop.py)
+**Studio shots versus real photos.** The frozen SigLIP 2 model scored **30.3%** top-1 on the held-out test photos. Fine-tuning lifted it to **48.5%**, and cropping to the bottle first, so the model sees a bottle and not a desk, lifted the final system to **66.7%**. On development photos the crop raised cluttered-scene top-1 from **12.5% to 58.3%**. See [src/scent_lens](src/scent_lens) and [results/test_results.md](results/test_results.md).
 
-**Knowing when it doesn't know.** The threshold is the lowest confidence at which the answered photos have a 95% upper bound on error of at most 10%. At first no threshold qualified: with only 23 correct development photos, the math needs 29 answers with no mistakes. After the crop, a threshold of 0.641 answered 33 of 101 development photos, all correct, and abstained on all 20 photos of bottles not in the catalog. → [`src/scent_lens/calibration.py`](src/scent_lens/calibration.py)
+**Knowing when it doesn't know.** The answer threshold is the lowest confidence at which the 95% upper bound on error stays at or below 10%. That is a strict requirement for a small photo set: 22 correct answers with no error give an upper bound of 12.7%, and 29 are needed. At first no threshold qualified and the system always abstained. After the crop, the threshold of 0.641 answered 33 of 101 development photos, all correct, and refused all 20 photos of bottles not in the catalog. See [src/scent_lens/calibration.py](src/scent_lens/calibration.py).
 
-**Look-alike siblings.** Flankers often share a bottle. Reading the label and adding 0.3 × a text-match score raised development top-1 from **54.3% to 65.4%**. The two wrong answers left on test photos are both sibling bottles not in the catalog (Glossier You Fleur answered as Glossier You). They stay documented rather than tuned away on test photos. → [`src/scent_lens/ocr.py`](src/scent_lens/ocr.py)
+**Look-alike siblings.** Flankers often share a bottle shape. Reading the label and adding a weighted text-match score raised development top-1 from **54.3% to 65.4%**. The two wrong answers among the hosted system's 24 answered test photos are both photos of bottles that are not in the catalog, answered as a catalog sibling: Glossier You, and Carolina Herrera Good Girl Eau de Parfum Légère. They are documented, not tuned away on test photos.
 
-**Reproducing the numbers in the shipped model.** The first end-to-end run of the exported model disagreed with the evaluation on **7%** of top matches, even though the weights were identical. The cause was that evaluation scored crops saved as JPEG and read back, while the app used the crop in memory. The pipeline now matches, so the demo's numbers are the measured ones.
+**Making the shipped model match the evaluation.** The first end-to-end run of the exported model disagreed with the evaluation on **7%** of top matches even though the weights were identical. The evaluation had scored crops that were saved as JPEG and read back, while the app used the crop in memory. Once the pipelines matched, the exported system's top-1 agreed with the evaluation on 92.9% to 97.6% of photos in each pool.
+
+![Risk against coverage on the test photos: answering only the most confident photos keeps the error rate low, while answering every photo is wrong roughly half the time](results/test_risk_coverage.png)
 
 ## Results
 
-All searches are against the full catalog of 24,642 fragrances. Brackets are 95% intervals; the samples are small.
+All searches use the full catalog of 24,642 products. Brackets are 95% intervals from resampling bottles, and the photo sets are small.
 
 | Photos | Top-1 | Top-5 | Answered | Correct when answered |
 | --- | --- | --- | --- | --- |
-| Test, version 1 (pre-registered, scored once) | **66.7%** [54.8, 78.2] | 75.8% | | |
-| Test, version 2 (seen once already, so optimistic) | 71.2% | 80.3% | 35.7% | 93.3% (28 of 30) |
-| Fresh web photos, version 2 (never used for any choice) | **76.2%** [56.6, 94.3] | 90.5% | 33.3% | **100%** (14 of 14) |
+| Test, version 1, pre-registered and scored once (84 photos, 28 bottles) | **66.7%** [54.8, 78.2] | 75.8% | not the shipped threshold | |
+| Test, version 2 as shipped (seen once already, so optimistic) | 71.2% | 74.2% (top 3) | 24 of 84 | **22 of 24** |
+| Web photos, version 2 as shipped (42 openly licensed, never used for any choice) | 73.8% | 85.7% (top 3) | 18 of 42 | **18 of 18** |
 
-<p align="center"><img src="results/test_risk_coverage.png" width="70%" alt="Risk against coverage on test photos: answering only the most confident 10% to 40% of photos keeps the error rate under 15%, while answering everything reaches about 48% wrong"></p>
+- **65 unit tests** (calibration bounds, crop geometry, retrieval ranks, metrics, splits, OCR matching, and a test that pins the SHA-256 of the pre-registration so its original text cannot be edited), run with ruff lint in CI.
+- **Hypotheses, version 1:** fine-tuning gain of at least 5 points was supported (18.2). Gallery size mattered (supported). Abstention reaching 85% accuracy at 25% coverage was **refuted**: at the version 1 threshold it answered 56.0% of photos at 83.0% accuracy.
+- **Latency:** a median of 2.45 s and 3.12 s at the 90th percentile per photo on CPU, and about 6 s per photo on 4 cloud cores once awake.
+- **Photos:** 55 bottles photographed by me and friends (141 phone photos plus 44 online product images), split by bottle into 27 development and 28 test bottles, with 7 test bottles not in the catalog.
 
-The curve is why it abstains: answering only its most confident photos keeps the error rate low, while answering everything would be wrong about half the time.
-
-- **65** unit tests (calibration bounds, crop geometry, retrieval ranks, metrics, splits, OCR matching, the pre-registration freeze), run with ruff lint in CI.
-- Photos: 63 bottles owned by me and friends, split by bottle into 101 development photos and 84 test photos (7 bottles not in the catalog), plus 42 openly licensed web photos.
-
-Not measured: accuracy on bottles photographed by strangers, and speed on phones. The demo takes about 6 s per photo on 4 cloud CPU cores once awake.
+**Not measured:** accuracy on bottles photographed by strangers, behavior on glare and dim light (no such phone photos were taken), and speed on phones.
 
 ## How it was built
 
-1. **Clean data.** 26,283 catalog rows became 24,642 products: duplicates and brand-generic images removed, rows grouped into products, and explicit images filtered out.
-2. **Pick a backbone.** CLIP, DINOv2 and SigLIP 2 were compared on synthetic distortions, then on real development photos, where SigLIP 2 won.
-3. **Pre-register, then train.** The hypotheses and rules were written and frozen before any photo was scored, then the fine-tune grid, the crop and the calibrator were chosen on development photos only.
-4. **Score the test once.** Version 1 was scored on the test photos a single time; the 66.7% headline comes from that run.
-5. **Version 2 and shipping.** Rotations, label reading and a fresh web set came after the test, then the model was exported, hosted on Modal, and connected to Accord.
+1. **Clean the data.** 26,283 catalog images became 25,748 images of 24,642 products: duplicates and brand-generic pictures removed, rows grouped into products, explicit images filtered.
+2. **Pick a backbone.** CLIP, DINOv2 and SigLIP 2 were compared on synthetic distortions, then on real development photos.
+3. **Pre-register, then tune.** Hypotheses and rules were frozen before any real photo was scored, then the fine-tune settings, the crop and the calibrator were chosen on development photos only.
+4. **Score the test once.** Version 1 was scored a single time, and one hypothesis came back refuted.
+5. **Version 2 and shipping.** Rotations, label reading and a fresh web set came after the test, then the model was exported, hosted on Modal and connected to Accord.
 
 ## Tech stack
 
 | Layer | Technology |
 | --- | --- |
-| Models | SigLIP 2 (fine-tuned with LoRA), OWLv2 detector, PyTorch |
-| Label reading | macOS Vision (development), RapidOCR on ONNX Runtime (hosted) |
+| Models | SigLIP 2 fine-tuned with LoRA, OWLv2 detector, PyTorch |
+| Label reading | macOS Vision in development, RapidOCR on ONNX Runtime when hosted |
 | Evaluation | scikit-learn calibration, Clopper-Pearson bounds, Matplotlib |
-| App and hosting | Gradio on Modal (free tier, CPU), deployed by GitHub Actions |
+| App and hosting | Gradio on Modal free tier (CPU), deployed by GitHub Actions |
 | Testing | pytest, ruff |
 
 ## Run it locally
@@ -114,27 +114,29 @@ python scripts/export_model.py            # bundle the model, gallery and settin
 python app/app.py                         # the demo, locally
 ```
 
-`Recognizer("artifacts/export")` identifies a photo from Python; [docs/integration.md](docs/integration.md) shows the HTTP route. Pushes to `main` that touch the demo redeploy it on Modal.
+`Recognizer("artifacts/export")` identifies a photo from Python, and [docs/integration.md](docs/integration.md) shows the HTTP route. Pushes to `main` that touch the demo redeploy it on Modal.
 
 ## Project structure
 
-```
-src/scent_lens/   # Catalog cleaning, crop, embedding, fine-tune, retrieval, OCR, calibration, recognize
-scripts/          # Data download, embedding, training, evaluation, export
-app/              # The Gradio demo
-deploy/           # Modal app and brand assets
-tests/            # Unit tests on toy fixtures
-results/          # Every reported number, with its JSON and charts
-docs/             # Plan, decisions, pre-registration, integration
+```text
+src/scent_lens/   catalog cleaning, crop, embedding, fine-tune, retrieval, OCR, calibration, recognize
+scripts/          data download, embedding, training, evaluation, export
+app/              the Gradio demo
+deploy/           Modal app and brand assets
+tests/            unit tests on toy fixtures
+results/          every reported number, with its JSON and charts
+docs/             plan, decisions, pre-registration, integration
 ```
 
 ## What's next
 
-Known limits:
-- It only knows catalog fragrances, and the catalog ends in early 2024.
-- Front views with a readable label are answered most; rear views, side views and hands covering the bottle rarely are.
-- One bottle per photo.
+**Known limits**
 
-Next: more real photos to tighten the intervals, and a test set photographed by people outside this project.
+- It only knows catalog fragrances, and the source catalog ends in early 2024.
+- Front views with a readable label are answered most. Rear views, side views and hands covering the bottle rarely are.
+- One bottle per photo, and the photo sets are small, so the intervals are wide.
+- The live demo depends on a free monthly credit.
+
+**Next:** more real photos to tighten the intervals, and a test set photographed by people outside this project.
 
 [Plan](docs/PLAN.md) · [Decisions](docs/decisions.md) · [Pre-registration](docs/experiments/preregistration.md) · [Integration](docs/integration.md) · [Measured results](app/results.md)
