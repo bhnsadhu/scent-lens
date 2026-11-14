@@ -9,6 +9,7 @@ Read docs/PLAN.md and this file before doing anything at every resume.
 - A bounded in-memory cache reuses eight recent results for identical cleaned pixels for up to ten minutes. It retains a digest and result metadata, never photo pixels. Failed calls are retried normally. The container idle window is reduced from 300 to 30 seconds.
 - The recognizer's model, calibration, thresholds, frozen test split and published accuracy numbers are unchanged. Runtime tests use synthetic fixtures. Hosted validation remains unavailable while the workspace is disabled.
 - Validation: lint and 70 non-torch unit tests passed; two torch-marked tests were deselected. The deploy bundle includes the runtime. Importing the demo with a deliberately absent export succeeded without constructing a recognizer. A CPU/RapidOCR regression on development photo `b006__online__1` produced the same decision and matches as the direct recognizer, with only one model call across two identical requests. This check reused the photo's recorded detection box because the local OWLv2 cache was unavailable; it is not a new detector or accuracy evaluation. Environment: Python 3.11.13, torch 2.14.1, transformers 5.20.0, Gradio 6.30.0 and Pillow 12.3.0.
+- Checkpoint `7cef135` is pushed to main. [CI](https://github.com/bhnsadhu/scent-lens/actions/runs/43576509980) and [Modal deployment](https://github.com/bhnsadhu/scent-lens/actions/runs/43576509891) succeeded. A subsequent request to the deployed URL still returned HTTP 404 with the disabled-workspace message. Accepting a deployment does not mean Modal is allowing inference again; the recorded-demo page remains in place.
 
 ## Status
 
@@ -33,7 +34,7 @@ The recognition project is complete, but live hosting is paused by the free allo
 
 ## Next action
 
-Verify the runtime deployment after Modal accepts work again, then restore the custom domain's live rewrite only after an identification request succeeds. The deployment workflow runs on qualifying pushes to main, but cannot reactivate a disabled workspace. The model export and sample photos are not in git: after a new export or new samples, run `scripts/upload_demo_data.sh` to put them in the Modal Volume `scent-lens-data`. By hand: `.venv/bin/python scripts/build_space.py bhnsadhu && .venv/bin/python -m modal deploy deploy/modal_app.py`.
+Verify a hosted identification request after Modal allows execution again, then restore the custom domain's live rewrite only after that request succeeds. The updated runtime is deployed. The deployment workflow runs on qualifying pushes to main, but cannot reactivate a disabled workspace. The model export and sample photos are not in git: after a new export or new samples, run `scripts/upload_demo_data.sh` to put them in the Modal Volume `scent-lens-data`. By hand: `.venv/bin/python scripts/build_space.py bhnsadhu && .venv/bin/python -m modal deploy deploy/modal_app.py`.
 
 Tools: ~/.local/bin/uv, ~/.local/bin/gh and ~/.local/bin/modal (not on PATH). Run python as .venv/bin/python. Set PYTORCH_ENABLE_MPS_FALLBACK=1, NO_ALBUMENTATIONS_UPDATE=1, and HF_HUB_OFFLINE=1 (weights cached; without it the hub check can stall a run for minutes).
 
