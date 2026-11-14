@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT / "src"))
 os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
 
 from scent_lens.photos import clean_pil  # noqa: E402
-from scent_lens.recognize import Recognizer  # noqa: E402
+from scent_lens.runtime import RecognitionRuntime  # noqa: E402
 
 EXPORT = Path(os.environ.get("SCENTLENS_EXPORT", HERE / "export" if (HERE / "export").exists() else ROOT / "artifacts" / "export"))
 SAMPLES = sorted(Path(os.environ.get("SCENTLENS_SAMPLES", HERE / "samples")).glob("*.jpg"))
@@ -33,7 +33,13 @@ REASONS = {
     "label disagrees": "The text on the label does not match the closest catalog fragrance, so this bottle may not be in the catalog.",
 }
 
-rec = Recognizer(EXPORT, reader=os.environ.get("SCENTLENS_READER"))  # RapidOCR off macOS
+def _load_recognizer():
+    from scent_lens.recognize import Recognizer
+
+    return Recognizer(EXPORT, reader=os.environ.get("SCENTLENS_READER"))  # RapidOCR off macOS
+
+
+rec = RecognitionRuntime(_load_recognizer)
 
 # Accord's world: a silver evaluation bench, ink type, Schibsted Grotesk with Geist Mono for
 # figures. ScentLens is the lens behind Accord's scanner, so the two read as one family.

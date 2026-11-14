@@ -22,7 +22,9 @@ The export folder is written by `scripts/export_model.py`.
 
 ## 2. Over HTTP, through the hosted demo
 
-The demo at https://bhnsadhu--scent-lens-web.us-east.modal.run serves the same function as the API endpoint `identify`. From Python:
+Hosting status on November 14, 2026: Modal reports that the workspace is disabled after its free allowance was exhausted. The public domain serves a status page with a recorded demo. The API below is unavailable until hosting resumes.
+
+When running, the demo at https://bhnsadhu--scent-lens-web.us-east.modal.run serves the same function as the API endpoint `identify`. From Python:
 
 ```python
 from gradio_client import Client, handle_file
@@ -40,7 +42,9 @@ const client = await Client.connect("https://bhnsadhu--scent-lens-web.us-east.mo
 const { data } = await client.predict("/identify", { image: handle_file(blob) });
 ```
 
-The demo runs on Modal's free tier with at most one container. It shuts down after 5 idle minutes, so the first request after a pause takes about a minute while it starts. After that, a photo takes about 6 s on its 4 CPU cores. A production app would want its own deployment ([deploy/modal_app.py](../deploy/modal_app.py)), or a GPU, where the same call takes about 1 s.
+The demo is configured for Modal's free allowance with at most one container and a 30-second idle window. The recognizer loads only when a photo is submitted, so opening the interface does not initialize its models. The first scan after shutdown still includes model startup time. The earlier deployment measured about 6 s per warm scan on 4 CPU cores; the new lifecycle settings have not yet been measured on the disabled host.
+
+The UI and public API share a process-local runtime. Identical cleaned pixels reuse a recent result, with at most eight results eligible for reuse for ten minutes. The cache holds only image digests and result metadata, not photo pixels. Expired entries are removed on the next scan, and all entries disappear when the container shuts down. Concurrent requests share model initialization and serialize inference. Failures are not cached. Recognition, calibration and answer thresholds are unchanged.
 
 ## The result
 
@@ -70,7 +74,7 @@ The demo runs on Modal's free tier with at most one container. It shuts down aft
 | `matches` | The top 3 catalog products. `score` is image similarity plus 0.3 times the label match, which ranks matches but is not a probability. |
 | `text_read` | The label text that was read. |
 | `box` | The bottle crop, in the frame of the photo resized to at most 1024 pixels on its longer side. |
-| `seconds`, `timings` | Total time of the call, and seconds per step: bottle crop (OWLv2), embedding at 3 rotations, label reading, matching. |
+| `seconds`, `timings` | Recognition time and seconds per step: bottle crop (OWLv2), embedding at 3 rotations, label reading, matching. Reused results report retrieval time and a `reuse` timing instead. Model startup is not included in the recognizer's timings. |
 
 `reason` is one of the following:
 

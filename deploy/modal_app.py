@@ -15,8 +15,8 @@ After a new export or new samples, upload them again:
     scripts/upload_demo_data.sh
 
 The OWLv2 detector weights are baked into the image so a cold start downloads
-nothing. One container at most, shut down after 5 idle minutes, which keeps
-the cost to cents per hour of use.
+nothing. One container at most, shut down after 30 idle seconds. Opening the
+demo does not load the recognizer; the first photo does.
 
 A redeploy replaces the running container: calls in flight on the old one are
 cancelled, and the new one needs about a minute to load before /identify
@@ -58,7 +58,7 @@ image = (
 app = modal.App("scent-lens", image=image)
 
 
-@app.function(cpu=4.0, memory=4096, max_containers=1, scaledown_window=300, timeout=600, volumes={"/data": DATA})
+@app.function(cpu=4.0, memory=4096, max_containers=1, scaledown_window=30, timeout=600, volumes={"/data": DATA})
 @modal.concurrent(max_inputs=4)
 @modal.asgi_app()
 def web():

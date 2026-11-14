@@ -2,6 +2,8 @@
 
 Each entry: date, decision, reason.
 
+- 2026-11-14. Conserve the existing free hosting allowance without changing recognition. The public demo now loads the recognizer only on the first submitted photo, shares initialization and serializes inference across its UI and API, and reuses up to eight recent results for identical cleaned pixels for ten minutes. The cache retains only digests and result metadata in memory. Caller mutations cannot change cached results, and failures are not cached. The Modal idle window is reduced from 300 to 30 seconds, accepting more cold scans in exchange for less idle resource use. Modal still reports the workspace disabled, so this is a runtime improvement, not a claim that hosting has resumed or accuracy increased. The private Accord deployment has its own lifecycle and is unchanged.
+
 - 2026-10-15. Dataset files observed on the hub (revision 9d2db452): perfumes.csv (12.1 MB, the file the card's data_files points to), images.zip (875 MB), plus parquet, xls, xlsx, sqlite, json, and jsonl copies of the metadata. Use perfumes.csv as the metadata source. Card tags: license mit, not-for-all-audiences.
 - 2026-10-15. Read catalog images straight from images.zip instead of extracting, to save about 0.9 GB of disk.
 - 2026-10-15. Disk budget estimate about 10 GB working set, 15 GB free requested for headroom: venv about 3 GB, model weights about 2.5 GB (dinov2 base, siglip 2 base, open_clip ViT B 32), dataset about 0.9 GB, embeddings and caches under 0.5 GB, fine tune checkpoints about 1 GB, real photos 1 to 2 GB, transient pip and build space about 2 GB (installs use no pip cache).

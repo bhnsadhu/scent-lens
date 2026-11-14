@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts" / "space"
-MODULES = ["__init__", "calibration", "crop", "embed", "finetune", "normalize", "ocr", "photos", "recognize", "retrieval"]
+MODULES = ["__init__", "calibration", "crop", "embed", "finetune", "normalize", "ocr", "photos", "recognize", "retrieval", "runtime"]
 REQUIREMENTS = """torch==2.14.1
 torchvision==0.29.1
 transformers==5.20.0
